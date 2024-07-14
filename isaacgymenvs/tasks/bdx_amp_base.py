@@ -56,12 +56,32 @@ class BdxAMPBase(VecTask):
         self.dof_pos_scale = self.cfg["env"]["learn"]["dofPositionScale"]
         self.dof_vel_scale = self.cfg["env"]["learn"]["dofVelocityScale"]
 
+        # reward scales
+        self.rew_scales = {}
+        self.rew_scales["lin_vel_xy"] = self.cfg["env"]["learn"][
+            "linearVelocityXYRewardScale"
+        ]
+        self.rew_scales["ang_vel_z"] = self.cfg["env"]["learn"][
+            "angularVelocityZRewardScale"
+        ]
+        self.rew_scales["torque"] = self.cfg["env"]["learn"]["torqueRewardScale"]
+
         self._pd_control = self.cfg["env"]["pdControl"]
         self.power_scale = self.cfg["env"]["powerScale"]
         self.randomize = self.cfg["task"]["randomize"]
 
         self.debug_viz = self.cfg["env"]["enableDebugVis"]
         self.camera_follow = self.cfg["env"].get("cameraFollow", False)
+
+        # command ranges
+        self.command_x_range = self.cfg["env"]["randomCommandVelocityRanges"][
+            "linear_x"
+        ]
+        self.command_y_range = self.cfg["env"]["randomCommandVelocityRanges"][
+            "linear_y"
+        ]
+        self.command_yaw_range = self.cfg["env"]["randomCommandVelocityRanges"]["yaw"]
+
         # plane params
         self.plane_static_friction = self.cfg["env"]["plane"]["staticFriction"]
         self.plane_dynamic_friction = self.cfg["env"]["plane"]["dynamicFriction"]
@@ -98,6 +118,9 @@ class BdxAMPBase(VecTask):
         self.Kp = self.cfg["env"]["control"]["stiffness"]
         self.Kd = self.cfg["env"]["control"]["damping"]
 
+        for key in self.rew_scales.keys():
+            self.rew_scales[key] *= self.dt
+
         self._local_root_obs = self.cfg["env"]["localRootObs"]
         self._termination_height = self.cfg["env"]["terminationHeight"]
         self._enable_early_termination = self.cfg["env"]["enableEarlyTermination"]
@@ -122,6 +145,14 @@ class BdxAMPBase(VecTask):
             self.num_envs, -1, 3
         )  # shape: num_envs, num_bodies, xyz axis
         self.torques = gymtorch.wrap_tensor(torques).view(self.num_envs, self.num_dof)
+
+        self.commands = torch.zeros(
+            self.num_envs, 3, dtype=torch.float, device=self.device, requires_grad=False
+        )
+        self.commands_y = self.commands.view(self.num_envs, 3)[..., 1]
+        self.commands_x = self.commands.view(self.num_envs, 3)[..., 0]
+        self.commands_yaw = self.commands.view(self.num_envs, 3)[..., 2]
+
         self.default_dof_pos = torch.zeros_like(
             self.dof_pos, dtype=torch.float, device=self.device, requires_grad=False
         )
@@ -215,12 +246,14 @@ class BdxAMPBase(VecTask):
 
         body_names = self.gym.get_asset_rigid_body_names(bdx_asset)
         self.dof_names = self.gym.get_asset_dof_names(bdx_asset)
-        extremity_name = "foot"
-        feet_names = [s for s in body_names if extremity_name in s]
+        # extremity_name = "foot"
+        # feet_names = [s for s in body_names if extremity_name in s]
+        feet_names = ["right_foot", "left_foot"]
         self.feet_indices = torch.zeros(
             len(feet_names), dtype=torch.long, device=self.device, requires_grad=False
         )
-        knee_names = [s for s in body_names if "knee" in s]
+        # knee_names = [s for s in body_names if "knee" in s]
+        knee_names = ["right_knee", "left_knee"]
         self.knee_indices = torch.zeros(
             len(knee_names), dtype=torch.long, device=self.device, requires_grad=False
         )
@@ -295,7 +328,7 @@ class BdxAMPBase(VecTask):
             self.reset_idx(env_ids)
 
         self.compute_observations()
-        self.compute_reward()
+        self.compute_reward(self.actions)
         self.compute_reset()
 
         self.extras["terminate"] = self._terminate_buf
@@ -304,11 +337,17 @@ class BdxAMPBase(VecTask):
         if self.viewer and self.debug_viz:
             self._update_debug_viz()
 
-    def compute_reward(self):
-        self.rew_buf[:] = compute_humanoid_reward(
-            # tensors
-            self.obs_buf,
+    def compute_reward(self, actions):
+        self.rew_buf[:] = compute_bdx_reward(
+            self.root_states,
+            self.commands,
+            self.rew_scales["lin_vel_xy"],
+            self.rew_scales["ang_vel_z"],
         )
+        # self.rew_buf[:] = compute_humanoid_reward(
+        #     # tensors
+        #     self.obs_buf,
+        # )
 
     def compute_reset(self):
         self.reset_buf, self._terminate_buf = compute_humanoid_reset(
@@ -361,6 +400,25 @@ class BdxAMPBase(VecTask):
             )
 
     def reset_idx(self, env_ids):
+        self.commands_x[env_ids] = torch_rand_float(
+            self.command_x_range[0],
+            self.command_x_range[1],
+            (len(env_ids), 1),
+            device=self.device,
+        ).squeeze()
+        self.commands_y[env_ids] = torch_rand_float(
+            self.command_y_range[0],
+            self.command_y_range[1],
+            (len(env_ids), 1),
+            device=self.device,
+        ).squeeze()
+        self.commands_yaw[env_ids] = torch_rand_float(
+            self.command_yaw_range[0],
+            self.command_yaw_range[1],
+            (len(env_ids), 1),
+            device=self.device,
+        ).squeeze()
+
         self._reset_actors(env_ids)
         self.compute_observations(env_ids)
 
@@ -473,8 +531,29 @@ class BdxAMPBase(VecTask):
 @torch.jit.script
 def compute_humanoid_reward(obs_buf):
     # type: (Tensor) -> Tensor
+
     reward = torch.ones_like(obs_buf[:, 0])
     return reward
+
+
+@torch.jit.script
+def compute_bdx_reward(root_states, commands, lin_vel_xy, ang_vel_z):
+    base_quat = root_states[:, 3:7]
+    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])
+    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])
+    # velocity tracking reward
+    lin_vel_error = torch.sum(
+        torch.square(commands[:, :2] - base_lin_vel[:, :2]), dim=1
+    )
+
+    ang_vel_error = torch.square(commands[:, 2] - base_ang_vel[:, 2])
+    rew_lin_vel_xy = torch.exp(-lin_vel_error / 0.25) * lin_vel_xy
+    rew_ang_vel_z = torch.exp(-ang_vel_error / 0.25) * ang_vel_z
+
+    total_reward = rew_lin_vel_xy + rew_ang_vel_z
+    total_reward = torch.clip(total_reward, 0.0, None)
+
+    return total_reward
 
 
 @torch.jit.script

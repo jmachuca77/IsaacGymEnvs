@@ -81,6 +81,11 @@ env:
     dofPositionScale: 1.0
     dofVelocityScale: 0.05
 
+    # rewards
+    linearVelocityXYRewardScale: 1.0
+    angularVelocityZRewardScale: 0.5
+    torqueRewardScale: -0.000025
+
   # viewer cam:
   viewer:
     refEnv: 0
