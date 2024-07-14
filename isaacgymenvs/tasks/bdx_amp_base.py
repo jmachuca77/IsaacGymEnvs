@@ -224,7 +224,7 @@ class BdxAMPBase(VecTask):
         # asset_file = os.path.basename(asset_path)
 
         asset_options = gymapi.AssetOptions()
-        asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
+        asset_options.default_dof_drive_mode = 1
         asset_options.collapse_fixed_joints = True
         asset_options.replace_cylinder_with_capsule = True
         asset_options.flip_visual_attachments = False
