@@ -492,11 +492,11 @@ class BdxAMPBase(VecTask):
         self.gym.clear_lines(self.viewer)
         return
 
-    def render(self):
+    def render(self, mode="rgb_array"):
         if self.viewer and self.camera_follow:
             self._update_camera()
 
-        super().render()
+        super().render(mode=mode)
         return
 
     def _build_pd_action_offset_scale(self):
