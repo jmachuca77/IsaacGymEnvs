@@ -73,7 +73,6 @@ class BdxAMPBase(VecTask):
         v_lin = self.cfg["env"]["baseInitState"]["vLinear"]
         v_ang = self.cfg["env"]["baseInitState"]["vAngular"]
         state = pos + rot + v_lin + v_ang
-
         self.base_init_state = state
 
         # default joint positions
@@ -193,12 +192,11 @@ class BdxAMPBase(VecTask):
         # asset_root = os.path.dirname(asset_path)
         # asset_file = os.path.basename(asset_path)
 
-        # TODO something weird with urdf loading. Check legged_robot.py
         asset_options = gymapi.AssetOptions()
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
         asset_options.collapse_fixed_joints = True
         asset_options.replace_cylinder_with_capsule = True
-        asset_options.flip_visual_attachments = True
+        asset_options.flip_visual_attachments = False
         asset_options.fix_base_link = self.cfg["env"]["urdfAsset"]["fixBaseLink"]
         asset_options.density = 0.001
         asset_options.angular_damping = 0.0
@@ -207,29 +205,28 @@ class BdxAMPBase(VecTask):
         asset_options.thickness = 0.01
         asset_options.disable_gravity = False
 
-        anymal_asset = self.gym.load_asset(
-            self.sim, asset_root, asset_file, asset_options
-        )
-        self.num_dof = self.gym.get_asset_dof_count(anymal_asset)
-        self.num_bodies = self.gym.get_asset_rigid_body_count(anymal_asset)
+        bdx_asset = self.gym.load_asset(self.sim, asset_root, asset_file, asset_options)
+        self.num_dof = self.gym.get_asset_dof_count(bdx_asset)
+
+        self.num_bodies = self.gym.get_asset_rigid_body_count(bdx_asset)
 
         start_pose = gymapi.Transform()
         start_pose.p = gymapi.Vec3(*self.base_init_state[:3])
 
-        body_names = self.gym.get_asset_rigid_body_names(anymal_asset)
-        self.dof_names = self.gym.get_asset_dof_names(anymal_asset)
-        extremity_name = "SHANK" if asset_options.collapse_fixed_joints else "FOOT"
+        body_names = self.gym.get_asset_rigid_body_names(bdx_asset)
+        self.dof_names = self.gym.get_asset_dof_names(bdx_asset)
+        extremity_name = "foot"
         feet_names = [s for s in body_names if extremity_name in s]
         self.feet_indices = torch.zeros(
             len(feet_names), dtype=torch.long, device=self.device, requires_grad=False
         )
-        knee_names = [s for s in body_names if "THIGH" in s]
+        knee_names = [s for s in body_names if "knee" in s]
         self.knee_indices = torch.zeros(
             len(knee_names), dtype=torch.long, device=self.device, requires_grad=False
         )
         self.base_index = 0
 
-        dof_props = self.gym.get_asset_dof_properties(anymal_asset)
+        dof_props = self.gym.get_asset_dof_properties(bdx_asset)
         self.dof_limits_lower = []
         self.dof_limits_upper = []
         for i in range(self.num_dof):
@@ -249,31 +246,31 @@ class BdxAMPBase(VecTask):
 
         env_lower = gymapi.Vec3(-spacing, -spacing, 0.0)
         env_upper = gymapi.Vec3(spacing, spacing, spacing)
-        self.anymal_handles = []
+        self.bdx_handles = []
         self.envs = []
 
         for i in range(self.num_envs):
             # create env instance
             env_ptr = self.gym.create_env(self.sim, env_lower, env_upper, num_per_row)
-            anymal_handle = self.gym.create_actor(
-                env_ptr, anymal_asset, start_pose, "anymal", i, 1, 0
+            bdx_handle = self.gym.create_actor(
+                env_ptr, bdx_asset, start_pose, "bdx", i, 1, 0
             )
-            self.gym.set_actor_dof_properties(env_ptr, anymal_handle, dof_props)
-            self.gym.enable_actor_dof_force_sensors(env_ptr, anymal_handle)
+            self.gym.set_actor_dof_properties(env_ptr, bdx_handle, dof_props)
+            self.gym.enable_actor_dof_force_sensors(env_ptr, bdx_handle)
             self.envs.append(env_ptr)
-            self.anymal_handles.append(anymal_handle)
+            self.bdx_handles.append(bdx_handle)
 
         for i in range(len(feet_names)):
             self.feet_indices[i] = self.gym.find_actor_rigid_body_handle(
-                self.envs[0], self.anymal_handles[0], feet_names[i]
+                self.envs[0], self.bdx_handles[0], feet_names[i]
             )
         for i in range(len(knee_names)):
             self.knee_indices[i] = self.gym.find_actor_rigid_body_handle(
-                self.envs[0], self.anymal_handles[0], knee_names[i]
+                self.envs[0], self.bdx_handles[0], knee_names[i]
             )
 
         self.base_index = self.gym.find_actor_rigid_body_handle(
-            self.envs[0], self.anymal_handles[0], "base"
+            self.envs[0], self.bdx_handles[0], "base"
         )
 
     def pre_physics_step(self, actions):
@@ -334,7 +331,7 @@ class BdxAMPBase(VecTask):
 
         # TODO: Replace default_dof_pos with _pd_action_offset
         if env_ids is None:
-            self.obs_buf[:] = compute_anymal_observations(  # tensors
+            self.obs_buf[:] = compute_bdx_observations(  # tensors
                 self.root_states,
                 self.dof_pos,
                 self.default_dof_pos,
@@ -349,7 +346,7 @@ class BdxAMPBase(VecTask):
             )
 
         else:
-            self.obs_buf[env_ids] = compute_anymal_observations(  # tensors
+            self.obs_buf[env_ids] = compute_bdx_observations(  # tensors
                 self.root_states[env_ids],
                 self.dof_pos[env_ids],
                 self.default_dof_pos[env_ids],
@@ -509,7 +506,7 @@ def compute_humanoid_reset(
 
 
 @torch.jit.script
-def compute_anymal_observations(
+def compute_bdx_observations(
     root_states,
     dof_pos,
     default_dof_pos,
