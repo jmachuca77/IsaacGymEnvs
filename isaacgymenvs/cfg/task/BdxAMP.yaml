@@ -8,7 +8,7 @@ env:
   motionFile: "data/motions/bdx/bdx_walk.txt"
   # End AMP-specific things
   # numEnvs: ${resolve_default:4096,${...num_envs}}
-  numEnvs: 8
+  numEnvs: 16
   envSpacing: 4. # [m]
   episodeLength_s: 8
   cameraFollow: False # if the camera follows humanoid or not
