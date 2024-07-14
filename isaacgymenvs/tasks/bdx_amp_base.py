@@ -496,8 +496,7 @@ class BdxAMPBase(VecTask):
         if self.viewer and self.camera_follow:
             self._update_camera()
 
-        super().render(mode=mode)
-        return
+        return super().render(mode=mode)
 
     def _build_pd_action_offset_scale(self):
         num_joints = 15
