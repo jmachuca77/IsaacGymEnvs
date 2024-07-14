@@ -30,7 +30,7 @@ from .ant import Ant
 from .anymal import Anymal
 from .anymal_terrain import AnymalTerrain
 from .ball_balance import BallBalance
-from .cartpole import Cartpole 
+from .cartpole import Cartpole
 from .factory.factory_task_gears import FactoryTaskGears
 from .factory.factory_task_insertion import FactoryTaskInsertion
 from .factory.factory_task_nut_bolt_pick import FactoryTaskNutBoltPick
@@ -40,18 +40,24 @@ from .franka_cabinet import FrankaCabinet
 from .franka_cube_stack import FrankaCubeStack
 from .humanoid import Humanoid
 from .humanoid_amp import HumanoidAMP
+from .bdx_amp import BdxAMP
 from .ingenuity import Ingenuity
 from .quadcopter import Quadcopter
 from .shadow_hand import ShadowHand
 from .allegro_hand import AllegroHand
-from .dextreme.allegro_hand_dextreme import AllegroHandDextremeManualDR, AllegroHandDextremeADR
+from .dextreme.allegro_hand_dextreme import (
+    AllegroHandDextremeManualDR,
+    AllegroHandDextremeADR,
+)
 from .trifinger import Trifinger
 
 from .allegro_kuka.allegro_kuka_reorientation import AllegroKukaReorientation
 from .allegro_kuka.allegro_kuka_regrasping import AllegroKukaRegrasping
 from .allegro_kuka.allegro_kuka_throw import AllegroKukaThrow
 from .allegro_kuka.allegro_kuka_two_arms_regrasping import AllegroKukaTwoArmsRegrasping
-from .allegro_kuka.allegro_kuka_two_arms_reorientation import AllegroKukaTwoArmsReorientation
+from .allegro_kuka.allegro_kuka_two_arms_reorientation import (
+    AllegroKukaTwoArmsReorientation,
+)
 
 from .industreal.industreal_task_pegs_insert import IndustRealTaskPegsInsert
 from .industreal.industreal_task_gears_insert import IndustRealTaskGearsInsert
@@ -70,6 +76,7 @@ def resolve_allegro_kuka(cfg, *args, **kwargs):
         raise ValueError(f"Unknown subtask={subtask_name} in {subtask_map}")
 
     return subtask_map[subtask_name](cfg, *args, **kwargs)
+
 
 def resolve_allegro_kuka_two_arms(cfg, *args, **kwargs):
     subtask_name: str = cfg["env"]["subtask"]
@@ -107,6 +114,7 @@ isaacgym_task_map = {
     "FrankaCubeStack": FrankaCubeStack,
     "Humanoid": Humanoid,
     "HumanoidAMP": HumanoidAMP,
+    "BdxAMP": BdxAMP,
     "Ingenuity": Ingenuity,
     "Quadcopter": Quadcopter,
     "ShadowHand": ShadowHand,

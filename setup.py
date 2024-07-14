@@ -26,8 +26,8 @@ INSTALL_REQUIRES = [
     "pysdf==0.1.9",
     "warp-lang==0.10.1",
     "trimesh==3.23.5",
-    ]
-
+    "pybullet",
+]
 
 
 # Installation operation
@@ -41,7 +41,10 @@ setup(
     python_requires=">=3.6",
     install_requires=INSTALL_REQUIRES,
     packages=find_packages("."),
-    classifiers=["Natural Language :: English", "Programming Language :: Python :: 3.6, 3.7, 3.8"],
+    classifiers=[
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.6, 3.7, 3.8",
+    ],
     zip_safe=False,
 )
 
