@@ -246,6 +246,13 @@ class BdxAMPBase(VecTask):
 
         body_names = self.gym.get_asset_rigid_body_names(bdx_asset)
         self.dof_names = self.gym.get_asset_dof_names(bdx_asset)
+
+        # WARNING TODO
+        # This is the joints order when loading using IsaacGymEnvs
+        # ['left_hip_yaw', 'left_hip_roll', 'left_hip_pitch', 'left_knee', 'left_ankle', 'neck_pitch', 'head_pitch', 'head_yaw', 'left_antenna', 'right_antenna', 'right_hip_yaw', 'right_hip_roll', 'right_hip_pitch', 'right_knee', 'right_ankle']
+        # This is the "standard" order (from mujoco)
+        # ['left_hip_yaw', 'left_hip_roll', 'left_hip_pitch', 'left_knee', 'left_ankle', 'right_hip_yaw', 'right_hip_roll', 'right_hip_pitch', 'right_knee', 'right_ankle', 'neck_pitch', 'head_pitch', 'head_yaw', 'left_antenna', 'right_antenna']
+
         # extremity_name = "foot"
         # feet_names = [s for s in body_names if extremity_name in s]
         feet_names = ["right_foot", "left_foot"]
