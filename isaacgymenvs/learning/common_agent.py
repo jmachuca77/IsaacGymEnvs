@@ -89,7 +89,7 @@ class CommonAgent(a2c_continuous.A2CAgent):
                 "num_steps": self.horizon_length,
                 "num_actors": self.num_actors,
                 "num_actions": self.actions_num,
-                "seq_len": self.seq_length,
+                "seq_length": self.seq_length,
                 "model": self.central_value_config["network"],
                 "config": self.central_value_config,
                 "writter": self.writer,
