@@ -6,11 +6,11 @@ physics_engine: ${..physics_engine}
 env:
   # AMP-specific things
   # motionFile: "data/motions/bdx/bdx_walk_forward.txt"
-  # motionFile: "data/motions/bdx/dataset_bdx.yaml"
-  motionFile: "data/motions/bdx/dataset_bdx_30fps.yaml"
+  motionFile: "data/motions/bdx/dataset_bdx.yaml"
+  # motionFile: "data/motions/bdx/dataset_bdx_30fps.yaml"
   # End AMP-specific things
   # numEnvs: ${resolve_default:4096,${...num_envs}}
-  numEnvs: 16
+  numEnvs: 8
   envSpacing: 1. # [m]
   episodeLength_s: 8
   cameraFollow: False # if the camera follows humanoid or not
