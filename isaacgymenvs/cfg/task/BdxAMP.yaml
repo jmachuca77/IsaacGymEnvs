@@ -40,9 +40,9 @@ env:
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
 
   randomCommandVelocityRanges:
-    linear_x: [0., 0.1] # min max [m/s]
-    linear_y: [0., 0.] # min max [m/s]
-    yaw: [-0., 0.] # min max [rad/s]
+    linear_x: [-0.1, 0.1] # min max [m/s]
+    linear_y: [0.1., 0.1] # min max [m/s]
+    yaw: [-0.2, 0.2] # min max [rad/s]
 
   control:
     # PD Drive parameters:
@@ -89,7 +89,7 @@ env:
   # viewer cam:
   viewer:
     refEnv: 0
-    pos: [0, 0, 1] # [m]
+    pos: [0, 0, 0.3] # [m]
     lookat: [0.3, 0.3, 1.5] # [m]
 
   # set to True if you use camera sensors in the environment

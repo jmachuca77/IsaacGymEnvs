@@ -208,7 +208,7 @@ class BdxAMP(BdxAMPBase):
         """Default initialization of robot.
 
         Robot is initialized from default initial state."""
-        # TODO: Replace
+
         self.dof_pos[env_ids] = self.default_dof_pos[env_ids]
         self.dof_vel[env_ids] = self.default_dof_vel[env_ids]
 
