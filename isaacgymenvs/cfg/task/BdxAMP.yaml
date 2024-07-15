@@ -5,8 +5,8 @@ physics_engine: ${..physics_engine}
 
 env:
   # AMP-specific things
-  # motionFile: "data/motions/bdx/bdx_walk_forward.txt"
-  motionFile: "data/motions/bdx/dataset_bdx.yaml"
+  motionFile: "data/motions/bdx/bdx_walk_forward.txt"
+  # motionFile: "data/motions/bdx/dataset_bdx.yaml"
   # motionFile: "data/motions/bdx/dataset_bdx_30fps.yaml"
   # End AMP-specific things
   # numEnvs: ${resolve_default:4096,${...num_envs}}
@@ -54,7 +54,7 @@ env:
   control:
     # PD Drive parameters:
     stiffness: 10 # [N*m/rad]
-    damping: 1 # [N*m*s/rad]
+    damping: 0.5 # [N*m*s/rad]
     # stiffness: 40.0 # [N*m/rad]
     # damping: 1.0 # [N*m*s/rad]
     # Replaced manual actionScale with automatic action scale calculated from URDF
