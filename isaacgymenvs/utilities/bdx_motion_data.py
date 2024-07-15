@@ -41,6 +41,7 @@ class MotionLib(object):
     def __init__(self, motion_file, device):
         self._num_dof = 15
         self._device = device
+        self._dataset_name_to_id = {}
         self._load_motions(motion_file)
 
     def num_motions(self):
@@ -52,9 +53,45 @@ class MotionLib(object):
     def get_motion(self, motion_id):
         return self._motions[motion_id]
 
-    def sample_motions(self, n) -> torch.Tensor:
-        m = self.num_motions()
-        motion_ids = np.random.choice(m, size=n, replace=True, p=self._motion_weights)
+    def sample_motions(self, n, commands) -> torch.Tensor:
+        # Need to find a way to sample the good motion when using fetch_amp_obs_demo
+        # Where n is of size amp_batch_size (512), but there are only num_envs commands
+        # For now, sample randomly
+        if True or len(self._dataset_name_to_id) == 1:  # Warning True
+            m = self.num_motions()
+            motion_ids = np.random.choice(
+                m, size=n, replace=True, p=self._motion_weights
+            )
+        else:
+            # dataset_ids = ["bdx_stand", "bdx_walk_forward", "bdx_walk_forward_right", "bdx_walk_forward_left", "bdx_walk_backward"]
+            motion_ids = []
+            print("num envs", n)
+            for i in range(n):
+                command_x = commands[i % n, 0]  # BAD
+                command_y = commands[i % n, 1]
+                command_yaw = commands[i % n, 2]
+
+                if (
+                    abs(command_x) < 0.01
+                    and abs(command_y) < 0.01
+                    and abs(command_yaw) < 0.01
+                ):
+                    motion_ids.append(self._dataset_name_to_id["bdx_stand"])
+                elif command_x > 0.01:
+                    if abs(command_y) < 0.01:
+                        motion_ids.append(self._dataset_name_to_id["bdx_walk_forward"])
+                    elif command_y > 0.01:
+                        motion_ids.append(
+                            self._dataset_name_to_id["bdx_walk_forward_right"]
+                        )
+                    else:
+                        motion_ids.append(
+                            self._dataset_name_to_id["bdx_walk_forward_left"]
+                        )
+                elif command_x < -0.01:
+                    motion_ids.append(self._dataset_name_to_id["bdx_walk_backward"])
+
+            motion_ids = torch.Tensor(motion_ids).long().to(self._device)
 
         return motion_ids
 
@@ -180,7 +217,7 @@ class MotionLib(object):
                 motion_config = yaml.load(f, Loader=yaml.SafeLoader)
 
             motion_list = motion_config["motions"]
-            for motion_entry in motion_list:
+            for id, motion_entry in enumerate(motion_list):
                 curr_file = motion_entry["file"]
                 curr_weight = motion_entry["weight"]
                 assert curr_weight >= 0
@@ -188,10 +225,14 @@ class MotionLib(object):
                 curr_file = os.path.join(dir_name, curr_file)
                 motion_weights.append(curr_weight)
                 motion_files.append(curr_file)
+                dataset_name = curr_file.split("/")[-1].split(".")[0]
+                self._dataset_name_to_id[dataset_name] = id
+
         else:
             # Load a single motion
             motion_files = [motion_file]
             motion_weights = [1.0]
+            self._dataset_name_to_id[motion_file] = 0
 
         return motion_files, motion_weights
 

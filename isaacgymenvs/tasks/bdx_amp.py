@@ -129,7 +129,7 @@ class BdxAMP(BdxAMPBase):
 
     def fetch_amp_obs_demo(self, num_samples):
         dt = self.dt
-        motion_ids = self._motion_lib.sample_motions(num_samples)
+        motion_ids = self._motion_lib.sample_motions(num_samples, self.commands)
 
         if self._amp_obs_demo_buf is None:
             self._build_amp_obs_demo_buf(num_samples)
@@ -236,7 +236,7 @@ class BdxAMP(BdxAMPBase):
         For each env, a reference motion is selected and used to initialize the robot state.
         """
         num_envs = env_ids.shape[0]
-        motion_ids = self._motion_lib.sample_motions(num_envs)
+        motion_ids = self._motion_lib.sample_motions(num_envs, self.commands)
 
         if (
             self._state_init == BdxAMP.StateInit.Random
