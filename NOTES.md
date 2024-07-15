@@ -8,3 +8,9 @@ There is a phase during training when the robot does not move and stands still. 
 
 ## Exporting
 - onnx are torch.jit.save are the same.
+
+
+
+## Useful
+- https://netron.app/
+- https://github.com/roboterax/humanoid-gym/blob/main/humanoid/scripts/sim2sim.py
