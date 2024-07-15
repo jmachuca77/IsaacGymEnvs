@@ -11,7 +11,7 @@ env:
   numEnvs: 16
   envSpacing: 1. # [m]
   episodeLength_s: 8
-  cameraFollow: True # if the camera follows humanoid or not
+  cameraFollow: False # if the camera follows humanoid or not
   enableDebugVis: False
 
   pdControl: True
@@ -41,7 +41,7 @@ env:
 
   randomCommandVelocityRanges:
     linear_x: [-0.1, 0.1] # min max [m/s]
-    linear_y: [0.1, 0.1] # min max [m/s]
+    linear_y: [-0.1, 0.1] # min max [m/s]
     yaw: [-0.2, 0.2] # min max [rad/s]
 
   control:
