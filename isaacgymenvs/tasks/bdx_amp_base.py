@@ -98,7 +98,7 @@ class BdxAMPBase(VecTask):
         # default joint positions
         self.named_default_joint_angles = self.cfg["env"]["defaultJointAngles"]
 
-        self.cfg["env"]["numObservations"] = 57
+        self.cfg["env"]["numObservations"] = 54
         self.cfg["env"]["numActions"] = 15
 
         # Call super init earlier to initialize sim params
@@ -611,17 +611,19 @@ def compute_bdx_observations(
     dof_vel_scale,
 ):
     # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, float, float, float) -> Tensor
-    base_quat = root_states[:, 3:7]
-    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
-    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
-    projected_gravity = quat_rotate(base_quat, gravity_vec)
+    # base_quat = root_states[:, 3:7]
+    # base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
+    # base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
+    # projected_gravity = quat_rotate(base_quat, gravity_vec)
+    base_lin_vel = root_states[:, 7:10] * lin_vel_scale
+    base_ang_vel = root_states[:, 10:13] * ang_vel_scale
     dof_pos_scaled = (dof_pos - default_dof_pos) * dof_pos_scale
 
     obs = torch.cat(
         (
             base_lin_vel,
             base_ang_vel,
-            projected_gravity,
+            # projected_gravity,
             dof_pos_scaled,
             dof_vel * dof_vel_scale,
             actions,

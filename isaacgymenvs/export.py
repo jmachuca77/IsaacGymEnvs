@@ -45,6 +45,11 @@ from rl_games.torch_runner import Runner
 
 import yaml
 import torch
+from rl_games.algos_torch import model_builder
+from isaacgymenvs.learning import amp_continuous
+from isaacgymenvs.learning import amp_players
+from isaacgymenvs.learning import amp_models
+from isaacgymenvs.learning import amp_network_builder
 
 
 # OmegaConf & Hydra Config
@@ -115,6 +120,20 @@ def launch_rlg_hydra(cfg: DictConfig):
     # convert CLI arguments into dictionory
     # create runner and set the settings
     runner = Runner(RLGPUAlgoObserver())
+    runner.algo_factory.register_builder(
+        "amp_continuous", lambda **kwargs: amp_continuous.AMPAgent(**kwargs)
+    )
+    runner.player_factory.register_builder(
+        "amp_continuous", lambda **kwargs: amp_players.AMPPlayerContinuous(**kwargs)
+    )
+    model_builder.register_model(
+        "continuous_amp",
+        lambda network, **kwargs: amp_models.ModelAMPContinuous(network),
+    )
+    model_builder.register_network(
+        "amp", lambda **kwargs: amp_network_builder.AMPBuilder()
+    )
+
     runner.load(rlg_config_dict)
     runner.reset()
 
@@ -135,6 +154,7 @@ def launch_rlg_hydra(cfg: DictConfig):
     obs_shape = player.obs_shape
     actions_num = player.actions_num
     obs_num = obs_shape[0]
+
     dummy_input = torch.zeros(obs_shape, device="cuda:0")
 
     # Simplified network for actor inference
