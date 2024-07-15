@@ -632,7 +632,6 @@ def compute_bdx_observations(
         (
             base_lin_vel,
             base_ang_vel,
-            # projected_gravity,
             dof_pos_scaled,
             dof_vel * dof_vel_scale,
             actions,
