@@ -253,45 +253,92 @@ def launch_rlg_hydra(cfg: DictConfig):
         with open(os.path.join(experiment_dir, "config.yaml"), "w") as f:
             f.write(OmegaConf.to_yaml(cfg))
 
-    if cfg.export_onnx:
-        # Simplified network for actor inference
-        # Tested for continuous_a2c_logstd
-        class ActorModel(torch.nn.Module):
-            def __init__(self, a2c_network):
-                super().__init__()
-                self.a2c_network = a2c_network
+    # if cfg.export_onnx:
+    #     # Simplified network for actor inference
+    #     # Tested for continuous_a2c_logstd
+    #     class ActorModel(torch.nn.Module):
+    #         def __init__(self, a2c_network):
+    #             super().__init__()
+    #             self.a2c_network = a2c_network
 
-            def forward(self, x):
-                x = self.a2c_network.actor_mlp(x)
-                x = self.a2c_network.mu(x)
+    #         def forward(self, x):
+    #             x = self.a2c_network.actor_mlp(x)
+    #             x = self.a2c_network.mu(x)
+    #             return x
+
+    #     player = runner.create_player()
+    #     player.restore(runner.load_path)
+    #     model = ActorModel(player.model.a2c_network)
+
+    #     # import flatten as flatten
+
+    #     dummy_input = torch.zeros(player.obs_shape, device="cuda:0")
+    #     random_input = torch.randn(player.obs_shape, device="cuda:0")
+    #     arange_input = torch.arange(54, device="cuda:0", dtype=torch.float32)
+    #     with torch.no_grad():
+    #         # adapter = flatten.TracingAdapter(model, dummy_input, allow_non_tensor=True)
+    #         torch.onnx.export(
+    #             model,
+    #             arange_input,
+    #             "ONNX.onnx",
+    #             verbose=True,
+    #             input_names=["observations"],
+    #             output_names=["actions"],
+    #         )  # outputs are mu (actions), sigma, value
+    #         # traced = torch.jit.trace(adapter, dummy_input, check_trace=True)
+    #         # flattened_outputs = traced(dummy_input)
+    #         traced = torch.jit.trace(model, arange_input, check_trace=True)
+    #         outputs = traced(arange_input)
+    #     print(f"Exported to {cfg.checkpoint}.onnx!")
+    #     print("Flattened outputs: ", outputs)
+    #     print(model.forward(arange_input))
+
+    #     exit()
+
+    if cfg.export_onnx:
+        # https://www.tylerbarkin.com/isaac-gym-to-onnx
+        class ModelWrapper(torch.nn.Module):
+            def __init__(self, model):
+                torch.nn.Module.__init__(self)
+                self._model = model
+
+            # def forward(self, input_dict):
+            #     input_dict["obs"] = self._model.norm_obs(input_dict["obs"])
+            #     return self._model.a2c_network(input_dict)
+
+            def forward(self, input_dict):
+                # input_dict["obs"] = self._model.norm_obs(input_dict["obs"])
+                x = self._model.a2c_network.actor_mlp(input_dict["obs"])
+                x = self._model.a2c_network.mu(x)
+                # x = self.a2c_network.actor_mlp(x)
                 return x
 
         player = runner.create_player()
-        model = ActorModel(player.model.a2c_network)
+        player.restore(cfg.checkpoint)
+        import rl_games.algos_torch.flatten as flatten
 
-        # import flatten as flatten
+        inputs = {
+            "obs": torch.zeros((1,) + player.obs_shape).to(player.device),
+        }
 
-        dummy_input = torch.zeros(player.obs_shape, device="cuda:0")
-        random_input = torch.randn(player.obs_shape, device="cuda:0")
-        arange_input = torch.arange(57, device="cuda:0", dtype=torch.float32)
         with torch.no_grad():
-            # adapter = flatten.TracingAdapter(model, dummy_input, allow_non_tensor=True)
-            torch.onnx.export(
-                model,
-                arange_input,
-                f"{cfg.checkpoint}.onnx",
-                verbose=True,
-                input_names=["observations"],
-                output_names=["actions"],
-            )  # outputs are mu (actions), sigma, value
-            # traced = torch.jit.trace(adapter, dummy_input, check_trace=True)
-            # flattened_outputs = traced(dummy_input)
-            traced = torch.jit.trace(model, arange_input, check_trace=True)
-            outputs = traced(arange_input)
-        print(f"Exported to {cfg.checkpoint}.onnx!")
-        print("Flattened outputs: ", outputs)
-        print(model.forward(arange_input))
+            adapter = flatten.TracingAdapter(
+                ModelWrapper(player.model), inputs, allow_non_tensor=True
+            )
+            traced = torch.jit.trace(
+                adapter, adapter.flattened_inputs, check_trace=False
+            )
+            flattened_outputs = traced(*adapter.flattened_inputs)
+            print(flattened_outputs)
 
+        torch.onnx.export(
+            traced,
+            *adapter.flattened_inputs,
+            "ONNX.onnx",
+            verbose=True,
+            input_names=["obs"],
+            output_names=["actions"],
+        )
         exit()
 
     runner.run(

@@ -346,7 +346,11 @@ class BdxAMPBase(VecTask):
 
     def compute_reward(self, actions):
         self.rew_buf[:] = compute_bdx_reward(
-            self.root_states, self.commands, self.rew_scales
+            self.root_states,
+            self.commands,
+            self.rew_scales,
+            self.lin_vel_scale,
+            self.ang_vel_scale,
         )
         # self.rew_buf[:] = compute_humanoid_reward(
         #     # tensors
@@ -548,11 +552,16 @@ def compute_bdx_reward(
     commands,
     # Dict
     rew_scales,
+    # Other
+    lin_vel_scale,
+    ang_vel_scale,
 ):
-    # type: (Tensor, Tensor, Dict[str, float]) -> Tensor
-    base_quat = root_states[:, 3:7]
-    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])
-    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])
+    # type: (Tensor, Tensor, Dict[str, float], float, float) -> Tensor
+    # base_quat = root_states[:, 3:7]
+    # base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])
+    # base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])
+    base_lin_vel = root_states[:, 7:10] * lin_vel_scale
+    base_ang_vel = root_states[:, 10:13] * ang_vel_scale
     # velocity tracking reward
     lin_vel_error = torch.sum(
         torch.square(commands[:, :2] - base_lin_vel[:, :2]), dim=1
