@@ -45,6 +45,11 @@ env:
     linear_y: [-0.05, 0.05] # min max [m/s]
     yaw: [-0.1, 0.1] # min max [rad/s]
 
+  # randomCommandVelocityRanges:
+  #   linear_x: [0.1, 0.1] # min max [m/s]
+  #   linear_y: [0.0, 0.0] # min max [m/s]
+  #   yaw: [0.2, 0.2] # min max [rad/s]
+
   control:
     # PD Drive parameters:
     stiffness: 40.0 # [N*m/rad]

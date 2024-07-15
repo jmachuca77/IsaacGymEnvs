@@ -1,0 +1,11 @@
+motions:
+  - file: "bdx_walk_forward_30fps.txt"
+    weight: 0.5
+  - file: "bdx_walk_backward_30fps.txt"
+    weight: 0.5
+  # - file: "bdx_walk_forward_right.txt"
+  #   weight: 0.2
+  # - file: "bdx_walk_forward_left.txt"
+  #   weight: 0.2
+  # - file: "bdx_stand.txt"
+  #   weight: 0.2
