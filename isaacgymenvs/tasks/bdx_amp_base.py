@@ -98,7 +98,7 @@ class BdxAMPBase(VecTask):
         # default joint positions
         self.named_default_joint_angles = self.cfg["env"]["defaultJointAngles"]
 
-        self.cfg["env"]["numObservations"] = 54
+        self.cfg["env"]["numObservations"] = 57
         self.cfg["env"]["numActions"] = 15
 
         # Call super init earlier to initialize sim params
@@ -381,6 +381,7 @@ class BdxAMPBase(VecTask):
                 self.dof_vel,
                 self.gravity_vec,
                 self.actions,
+                self.commands,
                 # scales
                 self.lin_vel_scale,
                 self.ang_vel_scale,
@@ -396,6 +397,7 @@ class BdxAMPBase(VecTask):
                 self.dof_vel[env_ids],
                 self.gravity_vec[env_ids],
                 self.actions[env_ids],
+                self.commands[env_ids],
                 # scales
                 self.lin_vel_scale,
                 self.ang_vel_scale,
@@ -602,12 +604,13 @@ def compute_bdx_observations(
     dof_vel,
     gravity_vec,
     actions,
+    commands,
     lin_vel_scale,
     ang_vel_scale,
     dof_pos_scale,
     dof_vel_scale,
 ):
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, float, float, float) -> Tensor
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, float, float, float) -> Tensor
     base_quat = root_states[:, 3:7]
     base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
     base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
@@ -622,6 +625,7 @@ def compute_bdx_observations(
             dof_pos_scaled,
             dof_vel * dof_vel_scale,
             actions,
+            commands,
         ),
         dim=-1,
     )
