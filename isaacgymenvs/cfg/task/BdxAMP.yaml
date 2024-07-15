@@ -53,8 +53,10 @@ env:
 
   control:
     # PD Drive parameters:
-    stiffness: 40.0 # [N*m/rad]
-    damping: 1.0 # [N*m*s/rad]
+    stiffness: 0.6 # [N*m/rad]
+    damping: 0.5 # [N*m*s/rad]
+    # stiffness: 40.0 # [N*m/rad]
+    # damping: 1.0 # [N*m*s/rad]
     # Replaced manual actionScale with automatic action scale calculated from URDF
     # actionScale: 2.0
     controlFrequencyInv: 1 # 60 Hz
@@ -143,7 +145,7 @@ task:
         schedule: "linear" # "linear" will linearly interpolate between no rand and max rand
         schedule_steps: 3000
     actor_params:
-      anymal:
+      bdx:
         color: True
         rigid_body_properties:
           mass:
