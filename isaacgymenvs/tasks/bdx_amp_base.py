@@ -345,7 +345,6 @@ class BdxAMPBase(VecTask):
         if len(env_ids) > 0:
             self.reset_idx(env_ids)
 
-        print(self.push_robots, self.common_step_counter)
         if self.push_robots:
             if self.common_step_counter % self.push_robots_interval == 0:
                 self._push_robots()
