@@ -557,11 +557,11 @@ def compute_bdx_reward(
     ang_vel_scale,
 ):
     # type: (Tensor, Tensor, Dict[str, float], float, float) -> Tensor
-    # base_quat = root_states[:, 3:7]
-    # base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])
-    # base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])
-    base_lin_vel = root_states[:, 7:10] * lin_vel_scale
-    base_ang_vel = root_states[:, 10:13] * ang_vel_scale
+    base_quat = root_states[:, 3:7]
+    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])
+    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])
+    # base_lin_vel = root_states[:, 7:10] * lin_vel_scale
+    # base_ang_vel = root_states[:, 10:13] * ang_vel_scale
     # velocity tracking reward
     lin_vel_error = torch.sum(
         torch.square(commands[:, :2] - base_lin_vel[:, :2]), dim=1
@@ -620,12 +620,12 @@ def compute_bdx_observations(
     dof_vel_scale,
 ):
     # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, float, float, float) -> Tensor
-    # base_quat = root_states[:, 3:7]
-    # base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
-    # base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
+    base_quat = root_states[:, 3:7]
+    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
+    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
     # projected_gravity = quat_rotate(base_quat, gravity_vec)
-    base_lin_vel = root_states[:, 7:10] * lin_vel_scale
-    base_ang_vel = root_states[:, 10:13] * ang_vel_scale
+    # base_lin_vel = root_states[:, 7:10] * lin_vel_scale
+    # base_ang_vel = root_states[:, 10:13] * ang_vel_scale
     dof_pos_scaled = (dof_pos - default_dof_pos) * dof_pos_scale
 
     obs = torch.cat(
