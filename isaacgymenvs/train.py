@@ -302,15 +302,13 @@ def launch_rlg_hydra(cfg: DictConfig):
                 torch.nn.Module.__init__(self)
                 self._model = model
 
-            # def forward(self, input_dict):
-            #     input_dict["obs"] = self._model.norm_obs(input_dict["obs"])
-            #     return self._model.a2c_network(input_dict)
-
             def forward(self, input_dict):
-                # input_dict["obs"] = self._model.norm_obs(input_dict["obs"])
+                input_dict["obs"] = self._model.norm_obs(
+                    input_dict["obs"]
+                )  # need this ? Seems like yes
+
                 x = self._model.a2c_network.actor_mlp(input_dict["obs"])
                 x = self._model.a2c_network.mu(x)
-                # x = self.a2c_network.actor_mlp(x)
                 return x
 
         player = runner.create_player()

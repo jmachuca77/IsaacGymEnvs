@@ -28,6 +28,7 @@
 
 import numpy as np
 import os
+import time
 import torch
 import pickle
 from isaacgym import gymtorch
@@ -56,6 +57,7 @@ class BdxAMPBase(VecTask):
         self.dof_pos_scale = self.cfg["env"]["learn"]["dofPositionScale"]
         self.dof_vel_scale = self.cfg["env"]["learn"]["dofVelocityScale"]
 
+        self.common_step_counter = 0
         # reward scales
         self.rew_scales = {}
         self.rew_scales["lin_vel_xy"] = self.cfg["env"]["learn"][
@@ -70,6 +72,10 @@ class BdxAMPBase(VecTask):
         self.power_scale = self.cfg["env"]["powerScale"]
         self.randomize = self.cfg["task"]["randomize"]
         self.randomization_params = self.cfg["task"]["randomization_params"]
+
+        self.push_robots = self.cfg["task"]["push_robots"]
+        self.push_robots_interval = self.cfg["task"]["push_robots_params"]["interval"]
+        self.max_push_force = self.cfg["task"]["push_robots_params"]["max_force"]
 
         self.debug_viz = self.cfg["env"]["enableDebugVis"]
         self.camera_follow = self.cfg["env"].get("cameraFollow", False)
@@ -192,6 +198,7 @@ class BdxAMPBase(VecTask):
             self._init_camera()
 
         # self.saved_obs = []
+        # self.saved_actions = []
 
     def create_sim(self):
         self.up_axis_idx = 2  # index of up axis: Y=1, Z=2
@@ -316,6 +323,8 @@ class BdxAMPBase(VecTask):
 
     def pre_physics_step(self, actions):
         self.actions = actions.to(self.device).clone()
+        # self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
+        # pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
 
         if self._pd_control:
             pd_tar = self._action_to_pd_targets(self.actions)
@@ -330,10 +339,16 @@ class BdxAMPBase(VecTask):
 
     def post_physics_step(self):
         self.progress_buf += 1
+        self.common_step_counter += 1
 
         env_ids = self.reset_buf.nonzero(as_tuple=False).squeeze(-1)
         if len(env_ids) > 0:
             self.reset_idx(env_ids)
+
+        print(self.push_robots, self.common_step_counter)
+        if self.push_robots:
+            if self.common_step_counter % self.push_robots_interval == 0:
+                self._push_robots()
 
         self.compute_observations()
         self.compute_reward(self.actions)
@@ -534,6 +549,17 @@ class BdxAMPBase(VecTask):
 
         return
 
+    def _push_robots(self):
+        """Random pushes the robots. Emulates an impulse by setting a randomized base velocity."""
+        print("Push !")
+        max_vel = self.max_push_force
+        self.root_states[:, 7:9] = torch_rand_float(
+            -max_vel, max_vel, (self.num_envs, 2), device=self.device
+        )  # lin vel x/y
+        self.gym.set_actor_root_state_tensor(
+            self.sim, gymtorch.unwrap_tensor(self.root_states)
+        )
+
 
 #####################################################################
 ###=========================jit functions=========================###
@@ -631,12 +657,14 @@ def compute_bdx_observations(
     # base_ang_vel = root_states[:, 10:13] * ang_vel_scale
     dof_pos_scaled = (dof_pos - default_dof_pos) * dof_pos_scale
 
+    dof_vel = dof_vel * dof_vel_scale
+
     obs = torch.cat(
         (
             base_lin_vel,
             base_ang_vel,
             dof_pos_scaled,
-            dof_vel * dof_vel_scale,
+            dof_vel,
             actions,
             commands,
         ),
