@@ -29,7 +29,7 @@
 import numpy as np
 import os
 import torch
-
+import pickle
 from isaacgym import gymtorch
 from isaacgym import gymapi
 from isaacgym.torch_utils import *
@@ -189,6 +189,8 @@ class BdxAMPBase(VecTask):
 
         if self.viewer != None:
             self._init_camera()
+
+        # self.saved_obs = []
 
     def create_sim(self):
         self.up_axis_idx = 2  # index of up axis: Y=1, Z=2
@@ -408,6 +410,8 @@ class BdxAMPBase(VecTask):
                 self.dof_pos_scale,
                 self.dof_vel_scale,
             )
+        # self.saved_obs.append(self.obs_buf[0].cpu().numpy())
+        # pickle.dump(self.saved_obs, open("saved_obs.pkl", "wb"))
 
     def reset_idx(self, env_ids):
         self.commands_x[env_ids] = torch_rand_float(
