@@ -253,15 +253,13 @@ class BdxAMPBase(VecTask):
         # This is the joints order when loading using IsaacGymEnvs
         # ['left_hip_yaw', 'left_hip_roll', 'left_hip_pitch', 'left_knee', 'left_ankle', 'neck_pitch', 'head_pitch', 'head_yaw', 'left_antenna', 'right_antenna', 'right_hip_yaw', 'right_hip_roll', 'right_hip_pitch', 'right_knee', 'right_ankle']
         # This is the "standard" order (from mujoco)
-        # ['left_hip_yaw', 'left_hip_roll', 'left_hip_pitch', 'left_knee', 'left_ankle', 'right_hip_yaw', 'right_hip_roll', 'right_hip_pitch', 'right_knee', 'right_ankle', 'neck_pitch', 'head_pitch', 'head_yaw', 'left_antenna', 'right_antenna']
+        # ['right_hip_yaw', 'right_hip_roll', 'right_hip_pitch', 'right_knee', 'right_ankle', 'left_hip_yaw', 'left_hip_roll', 'left_hip_pitch', 'left_knee', 'left_ankle', 'neck_pitch', 'head_pitch', 'head_yaw', 'left_antenna', 'right_antenna']
 
-        # extremity_name = "foot"
-        # feet_names = [s for s in body_names if extremity_name in s]
         feet_names = ["right_foot", "left_foot"]
         self.feet_indices = torch.zeros(
             len(feet_names), dtype=torch.long, device=self.device, requires_grad=False
         )
-        # knee_names = [s for s in body_names if "knee" in s]
+
         knee_names = ["right_knee", "left_knee"]
         self.knee_indices = torch.zeros(
             len(knee_names), dtype=torch.long, device=self.device, requires_grad=False
