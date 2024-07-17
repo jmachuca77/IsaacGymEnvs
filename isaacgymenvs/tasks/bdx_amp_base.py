@@ -137,11 +137,13 @@ class BdxAMPBase(VecTask):
         dof_state_tensor = self.gym.acquire_dof_state_tensor(self.sim)
         net_contact_forces = self.gym.acquire_net_contact_force_tensor(self.sim)
         torques = self.gym.acquire_dof_force_tensor(self.sim)
+        # _imu_tensor = self.gym.acquire_force_sensor_tensor(self.sim)
 
         self.gym.refresh_dof_state_tensor(self.sim)
         self.gym.refresh_actor_root_state_tensor(self.sim)
         self.gym.refresh_net_contact_force_tensor(self.sim)
         self.gym.refresh_dof_force_tensor(self.sim)
+        # self.gym.refresh_force_sensor_tensor(self.sim)
 
         # create some wrapper tensors for different slices
         self.root_states = gymtorch.wrap_tensor(actor_root_state)
@@ -166,6 +168,10 @@ class BdxAMPBase(VecTask):
         self.default_dof_vel = torch.zeros_like(
             self.dof_vel, dtype=torch.float, device=self.device, requires_grad=False
         )
+        # self.imu_indices = torch.tensor(
+        #     [3, 4, 5], device=self.device, requires_grad=False
+        # )
+        # self.imu_tensor = gymtorch.wrap_tensor(_imu_tensor)
 
         for i in range(self.cfg["env"]["numActions"]):
             name = self.dof_names[i]
@@ -197,6 +203,16 @@ class BdxAMPBase(VecTask):
         if self.viewer != None:
             self._init_camera()
 
+        # _imu_tensor = self.gym.acquire_force_sensor_tensor(self.sim)
+        # self.gym.refresh_force_sensor_tensor(self.sim)
+        # # self.imu_indices = torch.tensor(
+        # #     [3, 4, 5], device=self.device, requires_grad=False
+        # # )
+        # self.imu_indices = torch.tensor(
+        #     [0, 1, 2], device=self.device, requires_grad=False
+        # )  # TODO what indices ?
+        # self.imu_tensor = gymtorch.wrap_tensor(_imu_tensor)
+        #
         # self.saved_obs = []
         # self.saved_actions = []
 
@@ -275,6 +291,12 @@ class BdxAMPBase(VecTask):
         self.base_index = 0
 
         dof_props = self.gym.get_asset_dof_properties(bdx_asset)
+
+        # # add imu sensor
+        # body_idx = self.gym.find_asset_rigid_body_index(bdx_asset, "body_module")
+        # sensor_pose = gymapi.Transform()  # gymapi.Transform(gymapi.Vec3(0.0, 0.0, 0.0))
+        # self.gym.create_asset_force_sensor(bdx_asset, body_idx, sensor_pose)
+
         self.dof_limits_lower = []
         self.dof_limits_upper = []
         for i in range(self.num_dof):
@@ -325,6 +347,7 @@ class BdxAMPBase(VecTask):
         self.actions = actions.to(self.device).clone()
         # self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
         # pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
+        #
 
         if self._pd_control:
             pd_tar = self._action_to_pd_targets(self.actions)
@@ -340,6 +363,8 @@ class BdxAMPBase(VecTask):
     def post_physics_step(self):
         self.progress_buf += 1
         self.common_step_counter += 1
+
+        # self.gym.refresh_force_sensor_tensor(self.sim)
 
         env_ids = self.reset_buf.nonzero(as_tuple=False).squeeze(-1)
         if len(env_ids) > 0:
@@ -389,7 +414,10 @@ class BdxAMPBase(VecTask):
         self.gym.refresh_dof_state_tensor(self.sim)  # done in step
         self.gym.refresh_actor_root_state_tensor(self.sim)
         self.gym.refresh_net_contact_force_tensor(self.sim)
-        self.gym.refresh_dof_force_tensor(self.sim)
+
+        # self.gym.refresh_dof_force_tensor(self.sim)
+        # imu_state = torch.index_select(self.imu_tensor, 1, self.imu_indices)
+        # print(imu_state[0])
 
         # TODO: Replace default_dof_pos with _pd_action_offset
         if env_ids is None:
