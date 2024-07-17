@@ -329,7 +329,7 @@ def launch_rlg_hydra(cfg: DictConfig):
             flattened_outputs = traced(*adapter.flattened_inputs)
             print(flattened_outputs)
 
-        torch.jit.save(traced, "TEST.pt")
+        # torch.jit.save(traced, "TEST.pt")
 
         torch.onnx.export(
             traced,
