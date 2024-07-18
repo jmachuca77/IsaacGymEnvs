@@ -105,7 +105,7 @@ class BdxAMPBase(VecTask):
         # default joint positions
         self.named_default_joint_angles = self.cfg["env"]["defaultJointAngles"]
 
-        self.cfg["env"]["numObservations"] = 54
+        self.cfg["env"]["numObservations"] = 55
         self.cfg["env"]["numActions"] = 15
 
         # Call super init earlier to initialize sim params
@@ -188,6 +188,13 @@ class BdxAMPBase(VecTask):
             get_axis_params(-1.0, self.up_axis_idx), device=self.device
         ).repeat((self.num_envs, 1))
         self.actions = torch.zeros(
+            self.num_envs,
+            self.num_actions,
+            dtype=torch.float,
+            device=self.device,
+            requires_grad=False,
+        )
+        self.torques = torch.zeros(
             self.num_envs,
             self.num_actions,
             dtype=torch.float,
@@ -350,9 +357,19 @@ class BdxAMPBase(VecTask):
         #
 
         if self._pd_control:
-            pd_tar = self._action_to_pd_targets(self.actions)
-            pd_tar_tensor = gymtorch.unwrap_tensor(pd_tar)
-            self.gym.set_dof_position_target_tensor(self.sim, pd_tar_tensor)
+            pd_tar = self._action_to_pd_targets(self.actions) + self.default_dof_pos
+            self.torques = self.Kp * (pd_tar - self.dof_pos) - self.Kd * self.dof_vel
+
+            self.torques = torch.clip(
+                self.torques, -0.6, 0.6
+            )  # TODO find more restrictive limits based on the walk generator
+            self.gym.set_dof_actuation_force_tensor(
+                self.sim, gymtorch.unwrap_tensor(self.torques)
+            )
+
+            # pd_tar = self._action_to_pd_targets(self.actions)
+            # pd_tar_tensor = gymtorch.unwrap_tensor(pd_tar)
+            # self.gym.set_dof_position_target_tensor(self.sim, pd_tar_tensor)
         else:
             forces = self.actions * self.motor_efforts.unsqueeze(0) * self.power_scale
             force_tensor = gymtorch.unwrap_tensor(forces)
@@ -518,7 +535,7 @@ class BdxAMPBase(VecTask):
         return
 
     def _action_to_pd_targets(self, action):
-        pd_tar = self._pd_action_offset + self._pd_action_scale * action
+        pd_tar = self._pd_action_scale * action
         return pd_tar
 
     def _update_camera(self):
@@ -688,7 +705,8 @@ def compute_bdx_observations(
 
     obs = torch.cat(
         (
-            base_lin_vel,
+            base_quat,
+            # base_lin_vel,
             base_ang_vel,
             dof_pos_scaled,
             dof_vel,
