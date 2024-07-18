@@ -307,17 +307,31 @@ class BdxAMPBase(VecTask):
         self.dof_limits_lower = []
         self.dof_limits_upper = []
         for i in range(self.num_dof):
-            dof_props["driveMode"][i] = gymapi.DOF_MODE_POS
-            dof_props["stiffness"][i] = self.cfg["env"]["control"][
-                "stiffness"
-            ]  # self.Kp
-            dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]  # self.Kd
+            dof_props["driveMode"][i] = gymapi.DOF_MODE_NONE
+            dof_props["stiffness"][i] = 0
+            dof_props["damping"][i] = 0
             if dof_props["lower"][i] > dof_props["upper"][i]:
                 self.dof_limits_lower.append(dof_props["upper"][i])
                 self.dof_limits_upper.append(dof_props["lower"][i])
             else:
                 self.dof_limits_lower.append(dof_props["lower"][i])
                 self.dof_limits_upper.append(dof_props["upper"][i])
+        self.dof_limits_lower = to_torch(self.dof_limits_lower, device=self.device)
+        self.dof_limits_upper = to_torch(self.dof_limits_upper, device=self.device)
+
+        # Previously
+        # for i in range(self.num_dof):
+        #     dof_props["driveMode"][i] = gymapi.DOF_MODE_POS
+        #     dof_props["stiffness"][i] = self.cfg["env"]["control"][
+        #         "stiffness"
+        #     ]  # self.Kp
+        #     dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]  # self.Kd
+        #     if dof_props["lower"][i] > dof_props["upper"][i]:
+        #         self.dof_limits_lower.append(dof_props["upper"][i])
+        #         self.dof_limits_upper.append(dof_props["lower"][i])
+        #     else:
+        #         self.dof_limits_lower.append(dof_props["lower"][i])
+        #         self.dof_limits_upper.append(dof_props["upper"][i])
         self.dof_limits_lower = to_torch(self.dof_limits_lower, device=self.device)
         self.dof_limits_upper = to_torch(self.dof_limits_upper, device=self.device)
 
@@ -354,12 +368,16 @@ class BdxAMPBase(VecTask):
         self.actions = actions.to(self.device).clone()
         # self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
         # pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
-        #
 
         if self._pd_control:
             pd_tar = self._action_to_pd_targets(self.actions) + self.default_dof_pos
             self.torques = self.Kp * (pd_tar - self.dof_pos) - self.Kd * self.dof_vel
-
+            # print("actions", actions[0])
+            # print("torques", self.torques[0])
+            # print("default dof pos", self.default_dof_pos[0])
+            # print("dof pos ", self.dof_pos[0])
+            # print("dof vel ", self.dof_vel[0])
+            # print("====")
             self.torques = torch.clip(
                 self.torques, -0.6, 0.6
             )  # TODO find more restrictive limits based on the walk generator
