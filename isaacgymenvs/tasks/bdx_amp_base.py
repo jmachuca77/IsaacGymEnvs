@@ -364,14 +364,14 @@ class BdxAMPBase(VecTask):
         )
 
     def pre_physics_step(self, actions):
-        # self.actions = actions.to(self.device).clone()
-        self.actions = torch.zeros(
-            self.num_envs,
-            self.num_actions,
-            dtype=torch.float,
-            device=self.device,
-            requires_grad=False,
-        )
+        self.actions = actions.to(self.device).clone()
+        # self.actions = torch.zeros(
+        #     self.num_envs,
+        #     self.num_actions,
+        #     dtype=torch.float,
+        #     device=self.device,
+        #     requires_grad=False,
+        # )
         # self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
         # pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
 
