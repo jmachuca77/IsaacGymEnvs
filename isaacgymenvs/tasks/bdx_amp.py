@@ -26,23 +26,19 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import numpy as np
 import os
-import torch
-
-from gym import spaces
 from enum import Enum
-from isaacgym import gymtorch
-from isaacgym import gymapi
+from typing import Dict, Tuple
+
+import numpy as np
+import torch
+from gym import spaces
+from isaacgym import gymapi, gymtorch
 from isaacgym.torch_utils import *
 
 from isaacgymenvs.tasks.bdx_amp_base import BdxAMPBase
 from isaacgymenvs.utilities.bdx_motion_data import MotionLib
-
-from isaacgym.torch_utils import *
 from isaacgymenvs.utils.torch_jit_utils import *
-
-from typing import Tuple, Dict
 
 
 class BdxAMP(BdxAMPBase):

@@ -387,7 +387,7 @@ class BdxAMPBase(VecTask):
             #     self.sim, gymtorch.unwrap_tensor(self.torques)
             # )
 
-            pd_target = self._action_to_pd_targets(self.actions) + self.default_dof_pos
+            pd_target = self._action_to_pd_targets(self.actions)
             # target = self.actions + self.default_dof_pos
             target_tensor = gymtorch.unwrap_tensor(pd_target)
             self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
