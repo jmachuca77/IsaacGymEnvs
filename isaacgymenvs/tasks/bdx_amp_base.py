@@ -490,8 +490,8 @@ class BdxAMPBase(VecTask):
                 self.dof_pos_scale,
                 self.dof_vel_scale,
             )
-        # self.saved_obs.append(self.obs_buf[0].cpu().numpy())
-        # pickle.dump(self.saved_obs, open("saved_obs.pkl", "wb"))
+        self.saved_obs.append(self.obs_buf[0].cpu().numpy())
+        pickle.dump(self.saved_obs, open("saved_obs.pkl", "wb"))
 
     def reset_idx(self, env_ids):
         self.commands_x[env_ids] = torch_rand_float(
