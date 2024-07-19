@@ -41,6 +41,7 @@ from .franka_cube_stack import FrankaCubeStack
 from .humanoid import Humanoid
 from .humanoid_amp import HumanoidAMP
 from .bdx_amp import BdxAMP
+from .bdx_go_amp import BdxGoAMP
 from .ingenuity import Ingenuity
 from .quadcopter import Quadcopter
 from .shadow_hand import ShadowHand
@@ -115,6 +116,7 @@ isaacgym_task_map = {
     "Humanoid": Humanoid,
     "HumanoidAMP": HumanoidAMP,
     "BdxAMP": BdxAMP,
+    "BdxGoAMP": BdxGoAMP,
     "Ingenuity": Ingenuity,
     "Quadcopter": Quadcopter,
     "ShadowHand": ShadowHand,
