@@ -26,18 +26,17 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import numpy as np
 import os
-import time
-import torch
 import pickle
-from isaacgym import gymtorch
-from isaacgym import gymapi
+import time
+from typing import Dict, Tuple
+
+import numpy as np
+import torch
+from isaacgym import gymapi, gymtorch
 from isaacgym.torch_utils import *
 
 from isaacgymenvs.tasks.base.vec_task import VecTask
-
-from typing import Tuple, Dict
 
 
 class BdxAMPBase(VecTask):
@@ -490,8 +489,8 @@ class BdxAMPBase(VecTask):
                 self.dof_pos_scale,
                 self.dof_vel_scale,
             )
-        self.saved_obs.append(self.obs_buf[0].cpu().numpy())
-        pickle.dump(self.saved_obs, open("saved_obs.pkl", "wb"))
+        # self.saved_obs.append(self.obs_buf[0].cpu().numpy())
+        # pickle.dump(self.saved_obs, open("saved_obs.pkl", "wb"))
 
     def reset_idx(self, env_ids):
         self.commands_x[env_ids] = torch_rand_float(
