@@ -9,7 +9,7 @@ env:
   motionFile: "data/motions/bdx/dataset_bdx.yaml"
   # motionFile: "data/motions/bdx/dataset_bdx_30fps.yaml"
   # End AMP-specific things
-  # numEnvs: ${resolve_default:8000,${...num_envs}}
+  # numEnvs: ${resolve_default:8192,${...num_envs}}
   numEnvs: 8
   envSpacing: 1. # [m]
   episodeLength_s: 8
