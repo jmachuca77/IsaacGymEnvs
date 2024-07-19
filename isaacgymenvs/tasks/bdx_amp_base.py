@@ -375,7 +375,7 @@ class BdxAMPBase(VecTask):
         # pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
 
         if self._pd_control:
-            # pd_tar = self._action_to_pd_targets(self.actions) + self.default_dof_pos
+            # target = self._action_to_pd_targets(self.actions) + self.default_dof_pos
             # self.torques = (
             #     self.Kp * (pd_tar - self.dof_pos)
             #     - self.Kd * self.dof_vel  # * self.dof_vel_scale
@@ -387,9 +387,9 @@ class BdxAMPBase(VecTask):
             #     self.sim, gymtorch.unwrap_tensor(self.torques)
             # )
 
-            # pd_tar = self._action_to_pd_targets(self.actions)
-            target = self.actions + self.default_dof_pos
-            target_tensor = gymtorch.unwrap_tensor(target)
+            pd_target = self._action_to_pd_targets(self.actions) + self.default_dof_pos
+            # target = self.actions + self.default_dof_pos
+            target_tensor = gymtorch.unwrap_tensor(pd_target)
             self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
         else:
             forces = self.actions * self.motor_efforts.unsqueeze(0) * self.power_scale
