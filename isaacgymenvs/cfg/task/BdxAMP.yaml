@@ -19,6 +19,7 @@ env:
   pdControl: True
   powerScale: 1.0
   stateInit: "Random"
+  # stateInit: "Default"
   hybridInitProb: 0.5
   numAMPObsSteps: 2
 
@@ -53,8 +54,8 @@ env:
 
   control:
     # PD Drive parameters:
-    stiffness: 10 # [N*m/rad]
-    damping: 0.5 # [N*m*s/rad]
+    stiffness: 20 # [N*m/rad] 
+    damping: 1 # [N*m*s/rad]
     # stiffness: 40.0 # [N*m/rad]
     # damping: 1.0 # [N*m*s/rad]
     # Replaced manual actionScale with automatic action scale calculated from URDF
