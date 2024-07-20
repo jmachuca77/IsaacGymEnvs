@@ -15,6 +15,7 @@ env:
   episodeLength_s: 8
   cameraFollow: False # if the camera follows humanoid or not
   enableDebugVis: False
+  debugSaveObsActions: False
 
   pdControl: True
   powerScale: 1.0
@@ -37,7 +38,7 @@ env:
     restitution: 0. # [-]
 
   baseInitState:
-    pos: [0.0, 0.0, 0.2] # x,y,z [m]
+    pos: [0.0, 0.0, 0.15] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0] # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
