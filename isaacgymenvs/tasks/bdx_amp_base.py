@@ -105,6 +105,7 @@ class BdxAMPBase(VecTask):
         self.named_default_joint_angles = self.cfg["env"]["defaultJointAngles"]
 
         self.cfg["env"]["numObservations"] = 55
+        # self.cfg["env"]["numObservations"] = 54 # lin vel
         self.cfg["env"]["numActions"] = 15
 
         # Call super init earlier to initialize sim params
