@@ -38,10 +38,11 @@ env:
     restitution: 0. # [-]
 
   baseInitState:
-    pos: [0.0, 0.0, 0.15] # x,y,z [m]
+    pos: [0.0, 0.0, 0.17] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0] # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
+    randomZRot: True
 
   randomCommandVelocityRanges:
     linear_x: [-0.1, 0.1] # min max [m/s]

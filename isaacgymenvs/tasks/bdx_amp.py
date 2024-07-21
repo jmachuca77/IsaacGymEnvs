@@ -63,6 +63,7 @@ class BdxAMP(BdxAMPBase):
         self._state_init = BdxAMP.StateInit[state_init]
         self._hybrid_init_prob = cfg["env"]["hybridInitProb"]
         self._num_amp_obs_steps = cfg["env"]["numAMPObsSteps"]
+        self._random_z_rot = cfg["env"]["baseInitState"]["randomZRot"]
         # self._num_amp_obs_per_step = (
         #     3 + 4 + 3 + 3 + 15 + 15
         # )  # root pos, root orn, root lin vel, root ang vel, dof pos, dof vel
@@ -150,7 +151,9 @@ class BdxAMP(BdxAMPBase):
             root_vel,
             root_ang_vel,
             dof_vel,
-        ) = self._motion_lib.get_motion_state(motion_ids, motion_times)
+        ) = self._motion_lib.get_motion_state(
+            motion_ids, motion_times, random_z_rot=self._random_z_rot
+        )
         root_states = torch.cat([root_pos, root_rot, root_vel, root_ang_vel], dim=-1)
         amp_obs_demo = build_amp_observations(
             root_states, dof_pos, dof_vel, self._local_root_obs
@@ -254,7 +257,9 @@ class BdxAMP(BdxAMPBase):
             root_vel,
             root_ang_vel,
             dof_vel,
-        ) = self._motion_lib.get_motion_state(motion_ids, motion_times)
+        ) = self._motion_lib.get_motion_state(
+            motion_ids, motion_times, random_z_rot=self._random_z_rot
+        )
         # Set root pos to begin at same position
         root_pos[:, :3] = self.initial_root_states[env_ids, :3]
 

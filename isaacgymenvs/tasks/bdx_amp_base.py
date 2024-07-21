@@ -679,7 +679,6 @@ def compute_bdx_reward(
     ang_vel_error = torch.square(commands[:, 2] - base_ang_vel[:, 2])
     rew_lin_vel_xy = torch.exp(-lin_vel_error / 0.25) * rew_scales["lin_vel_xy"]
     rew_ang_vel_z = torch.exp(-ang_vel_error / 0.25) * rew_scales["ang_vel_z"]
-
     total_reward = rew_lin_vel_xy + rew_ang_vel_z
     total_reward = torch.clip(total_reward, 0.0, None)
 

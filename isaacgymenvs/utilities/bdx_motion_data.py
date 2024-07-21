@@ -26,6 +26,7 @@ import torch
 from isaacgymenvs.utilities import pose3d
 from isaacgymenvs.utilities import motion_util
 from pybullet_utils import transformations
+from scipy.spatial.transform import Rotation as R
 
 from isaacgym.torch_utils import to_torch
 
@@ -111,7 +112,7 @@ class MotionLib(object):
     def get_motion_length(self, motion_ids):
         return self._motion_lengths[motion_ids]
 
-    def get_motion_state(self, motion_ids, motion_times):
+    def get_motion_state(self, motion_ids, motion_times, random_z_rot=False):
         """Interpolate the motion-capture data to get motion state at arbitrary time"""
         n = len(motion_ids)
         root_pos = np.empty([n, 3])
@@ -128,7 +129,14 @@ class MotionLib(object):
             frame_vel_t = motion.calc_frame_vel(motion_time)
 
             root_pos[i, :] = frame_t[:3]
-            root_rot[i, :] = frame_t[3:7]
+
+            rot_quat = frame_t[3:7]
+            if random_z_rot:
+              rot_euler = R.from_quat(rot_quat).as_euler("xyz")
+              rot_euler[2] += np.random.uniform(-np.pi, np.pi)
+              rot_quat = R.from_euler("xyz", rot_euler).as_quat()
+
+            root_rot[i, :] = rot_quat
             dof_pos[i, :] = frame_t[7:]
 
             root_vel[i, :] = frame_vel_t[:3]
