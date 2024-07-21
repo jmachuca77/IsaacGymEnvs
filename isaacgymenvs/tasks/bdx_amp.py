@@ -63,9 +63,10 @@ class BdxAMP(BdxAMPBase):
         self._state_init = BdxAMP.StateInit[state_init]
         self._hybrid_init_prob = cfg["env"]["hybridInitProb"]
         self._num_amp_obs_steps = cfg["env"]["numAMPObsSteps"]
-        self._num_amp_obs_per_step = (
-            3 + 4 + 3 + 3 + 15 + 15
-        )  # root pos, root orn, root lin vel, root ang vel, dof pos, dof vel
+        # self._num_amp_obs_per_step = (
+        #     3 + 4 + 3 + 3 + 15 + 15
+        # )  # root pos, root orn, root lin vel, root ang vel, dof pos, dof vel
+        self._num_amp_obs_per_step = 15 + 15  # dof pos, dof vel
         assert self._num_amp_obs_steps >= 2
 
         self._reset_default_env_ids = []
@@ -459,10 +460,10 @@ def build_amp_observations(root_states, dof_pos, dof_vel, local_root_obs):
 
     obs = torch.cat(
         (
-            dummy_root_h,
-            root_rot_obs,
-            local_root_vel,
-            local_root_ang_vel,
+            # dummy_root_h,
+            # root_rot_obs,
+            # local_root_vel,
+            # local_root_ang_vel,
             dof_obs,
             dof_vel,
         ),

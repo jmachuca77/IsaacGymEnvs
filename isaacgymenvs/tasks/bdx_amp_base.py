@@ -667,8 +667,8 @@ def compute_bdx_reward(
 ):
     # type: (Tensor, Tensor, Dict[str, float], float, float) -> Tensor
     base_quat = root_states[:, 3:7]
-    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])
-    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])
+    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
+    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
     # base_lin_vel = root_states[:, 7:10] * lin_vel_scale
     # base_ang_vel = root_states[:, 10:13] * ang_vel_scale
     # velocity tracking reward

@@ -553,10 +553,6 @@ class AMPAgent(common_agent.CommonAgent):
         return self.model.a2c_network.eval_disc(proc_amp_obs)
 
     def _calc_amp_rewards(self, amp_obs):
-        print(amp_obs[0])
-        print(amp_obs[0].shape)
-        print(amp_obs.shape)
-        print("===")
         disc_r = self._calc_disc_rewards(amp_obs)
         output = {"disc_rewards": disc_r}
         return output
