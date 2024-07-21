@@ -68,8 +68,8 @@ class BdxAMP(BdxAMPBase):
         #     3 + 4 + 3 + 3 + 15 + 15
         # )  # root pos, root orn, root lin vel, root ang vel, dof pos, dof vel
         self._num_amp_obs_per_step = (
-            4 + 3 + 3 + 15 + 15
-        )  # root_orn, root lin vel, root ang vel, dof pos, dof vel
+            2 + 3 + 3 + 15 + 15
+        )  # xy_root_orn, root lin vel, root ang vel, dof pos, dof vel
         assert self._num_amp_obs_steps >= 2
 
         self._reset_default_env_ids = []
@@ -467,15 +467,16 @@ def build_amp_observations(root_states, dof_pos, dof_vel, local_root_obs):
 
     # the body orientation is probably important but we want the model to be invariant to the yaw orientation.
     # so we will remove the yaw component of the orientation
-    # rolls, pitchs, yaws = get_euler_xyz(root_rot_obs)
-    # xyz_euler_root_orientation = torch.stack((rolls, pitchs, yaws), dim=-1)
+    rolls, pitchs, yaws = get_euler_xyz(root_rot_obs)
+    xy_euler_root_orientation = torch.stack((rolls, pitchs), dim=-1)
     # print(root_rot_obs)
     # print(xyz_euler_root_orientation)
     # print("===")
     obs = torch.cat(
         (
             # dummy_root_h,
-            root_rot_obs,
+            # root_rot_obs,
+            xy_euler_root_orientation,
             local_root_vel,
             local_root_ang_vel,
             dof_obs,
