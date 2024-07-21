@@ -1,5 +1,5 @@
 motions:
-  - file: "bdx_walk_in_place.txt"
+  - file: "bdx_forward.txt"
     weight: 1.0
   # - file: "bdx_walk_in_place.txt"
   #   weight: 1.0
