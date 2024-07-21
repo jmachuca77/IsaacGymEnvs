@@ -77,6 +77,7 @@ class BdxAMPBase(VecTask):
         self.max_push_force = self.cfg["task"]["push_robots_params"]["max_force"]
 
         self.debug_viz = self.cfg["env"]["enableDebugVis"]
+        self.debug_save_obs_actions = self.cfg["env"]["debugSaveObsActions"]
         self.camera_follow = self.cfg["env"].get("cameraFollow", False)
 
         # command ranges
@@ -105,6 +106,7 @@ class BdxAMPBase(VecTask):
         self.named_default_joint_angles = self.cfg["env"]["defaultJointAngles"]
 
         self.cfg["env"]["numObservations"] = 55
+        # self.cfg["env"]["numObservations"] = 54 # lin vel
         self.cfg["env"]["numActions"] = 15
 
         # Call super init earlier to initialize sim params
@@ -219,8 +221,9 @@ class BdxAMPBase(VecTask):
         # )  # TODO what indices ?
         # self.imu_tensor = gymtorch.wrap_tensor(_imu_tensor)
         #
-        # self.saved_obs = []
-        # self.saved_actions = []
+        if self.debug_save_obs_actions:
+            self.saved_obs = []
+            self.saved_actions = []
 
     def create_sim(self):
         self.up_axis_idx = 2  # index of up axis: Y=1, Z=2
@@ -371,8 +374,9 @@ class BdxAMPBase(VecTask):
         #     device=self.device,
         #     requires_grad=False,
         # )
-        # self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
-        # pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
+        if self.debug_save_obs_actions:
+            self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
+            pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
 
         if self._pd_control:
             # target = self._action_to_pd_targets(self.actions) + self.default_dof_pos
@@ -387,9 +391,15 @@ class BdxAMPBase(VecTask):
             #     self.sim, gymtorch.unwrap_tensor(self.torques)
             # )
 
-            pd_target = self._action_to_pd_targets(self.actions) + self.default_dof_pos
-            # target = self.actions + self.default_dof_pos
-            target_tensor = gymtorch.unwrap_tensor(pd_target)
+            # pd_target = self._action_to_pd_targets(self.actions) + self.default_dof_pos
+            # pd_target = self.default_dof_pos
+            # pd_target = (
+            #     self.default_dof_pos
+            #     + np.sin(5 * self.common_step_counter * self.dt) * 0.5
+            # )
+            # pd_target = self.actions
+            target = self.default_dof_pos + self.actions
+            target_tensor = gymtorch.unwrap_tensor(target)
             self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
         else:
             forces = self.actions * self.motor_efforts.unsqueeze(0) * self.power_scale
@@ -489,8 +499,9 @@ class BdxAMPBase(VecTask):
                 self.dof_pos_scale,
                 self.dof_vel_scale,
             )
-        # self.saved_obs.append(self.obs_buf[0].cpu().numpy())
-        # pickle.dump(self.saved_obs, open("saved_obs.pkl", "wb"))
+        if self.debug_save_obs_actions:
+            self.saved_obs.append(self.obs_buf[0].cpu().numpy())
+            pickle.dump(self.saved_obs, open("saved_obs.pkl", "wb"))
 
     def reset_idx(self, env_ids):
         self.commands_x[env_ids] = torch_rand_float(
@@ -519,6 +530,10 @@ class BdxAMPBase(VecTask):
         # Randomization can happen only at reset time, since it can reset actor positions on GPU
         if self.randomize:
             self.apply_randomizations(self.randomization_params)
+
+        if self.debug_save_obs_actions:
+            self.saved_obs = []
+            self.saved_actions = []
 
         self.dof_pos[env_ids] = self.default_dof_pos[env_ids]
         self.dof_vel[env_ids] = self.default_dof_vel[env_ids]
