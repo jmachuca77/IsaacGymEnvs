@@ -56,10 +56,10 @@ env:
 
   control:
     # PD Drive parameters:
-    stiffness: 500 # [N*m/rad] 
-    damping: 5 # [N*m*s/rad]
-    # stiffness: 20 # [N*m/rad] 
-    # damping: 1 # [N*m*s/rad]
+    # stiffness: 500 # [N*m/rad] 
+    # damping: 5 # [N*m*s/rad]
+    stiffness: 20 # [N*m/rad] 
+    damping: 1 # [N*m*s/rad]
     # Replaced manual actionScale with automatic action scale calculated from URDF
     # actionScale: 2.0
     controlFrequencyInv: 1 # 60 Hz
@@ -133,7 +133,7 @@ task:
   push_robots_params:
     interval: 400.0 # Define how many environment steps between generating new randomizations
     max_force: 0.1
-  randomize: True
+  randomize: False
   randomization_params:
     frequency: 600 # Define how many environment steps between generating new randomizations
     observations:
