@@ -14,21 +14,20 @@
 # limitations under the License.
 
 """Motion data class for processing motion clips."""
-import os
+import enum
 import json
 import logging
 import math
-import enum
-import numpy as np
-import yaml
-import torch
+import os
 
-from isaacgymenvs.utilities import pose3d
-from isaacgymenvs.utilities import motion_util
+import numpy as np
+import torch
+import yaml
+from isaacgym.torch_utils import to_torch
 from pybullet_utils import transformations
 from scipy.spatial.transform import Rotation as R
 
-from isaacgym.torch_utils import to_torch
+from isaacgymenvs.utilities import motion_util, pose3d
 
 
 class LoopMode(enum.Enum):
@@ -122,6 +121,11 @@ class MotionLib(object):
         dof_pos = np.empty([n, self._num_dof])
         dof_vel = np.empty([n, self._num_dof])
 
+        if random_z_rot:
+            z_rots = {}
+            for id in range(len(motion_ids)):
+                z_rots[id] = np.random.uniform(-180, 180)
+
         # TODO: Implement vectorized version
         for i, (motion_id, motion_time) in enumerate(zip(motion_ids, motion_times)):
             motion = self.get_motion(motion_id)
@@ -132,9 +136,9 @@ class MotionLib(object):
 
             rot_quat = frame_t[3:7]
             if random_z_rot:
-              rot_euler = R.from_quat(rot_quat).as_euler("xyz")
-              rot_euler[2] += np.random.uniform(-np.pi, np.pi)
-              rot_quat = R.from_euler("xyz", rot_euler).as_quat()
+                rot_euler = R.from_quat(rot_quat).as_euler("xyz")
+                rot_euler[2] += z_rots[i]
+                rot_quat = R.from_euler("xyz", rot_euler).as_quat()
 
             root_rot[i, :] = rot_quat
             dof_pos[i, :] = frame_t[7:]
