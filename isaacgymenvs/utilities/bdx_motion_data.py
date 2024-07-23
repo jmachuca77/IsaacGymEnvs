@@ -132,15 +132,22 @@ class MotionLib(object):
             frame_t = motion.calc_frame(motion_time)
             frame_vel_t = motion.calc_frame_vel(motion_time)
 
-            root_pos[i, :] = frame_t[:3]
-
             rot_quat = frame_t[3:7]
+            tmp_root_pos = frame_t[:3]
+
             if random_z_rot:
-                rot_euler = R.from_quat(rot_quat).as_euler("xyz")
+                rot_euler = R.from_quat(rot_quat).as_euler("xyz", degrees=True)
                 rot_euler[2] += z_rots[i]
-                rot_quat = R.from_euler("xyz", rot_euler).as_quat()
+                rot_quat = R.from_euler("xyz", rot_euler, degrees=True).as_quat()
+
+                # rotate root position too around z at origin
+                tmp_root_pos = (
+                    R.from_euler("z", z_rots[i], degrees=True).as_matrix()
+                    @ tmp_root_pos
+                )
 
             root_rot[i, :] = rot_quat
+            root_pos[i, :] = tmp_root_pos
             dof_pos[i, :] = frame_t[7:]
 
             root_vel[i, :] = frame_vel_t[:3]

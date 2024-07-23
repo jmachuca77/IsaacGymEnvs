@@ -1,5 +1,5 @@
 motions:
-  # - file: "mujoco_forward_all_orientations/bdx_forward_0.txt"
-  #   weight: 1.0
-  - file: "mujoco_bdx_stand.txt"
+  - file: "mujoco_forward_all_orientations/bdx_forward_0.txt"
     weight: 1.0
+  # - file: "mujoco_bdx_stand.txt"
+  #   weight: 1.0
