@@ -479,7 +479,6 @@ def build_amp_observations(root_states, dof_pos, dof_vel, local_root_obs):
         (
             # dummy_root_h,
             root_rot_obs,
-            # xy_euler_root_orientation,
             local_root_vel,
             local_root_ang_vel,
             dof_obs,
