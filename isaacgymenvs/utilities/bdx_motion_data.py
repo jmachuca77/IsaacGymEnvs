@@ -128,7 +128,7 @@ class MotionLib(object):
 
         # TODO: Implement vectorized version
         for i, (motion_id, motion_time) in enumerate(zip(motion_ids, motion_times)):
-            motion = self.get_motion(motion_id)
+            motion: MotionData = self.get_motion(motion_id)
             frame_t = motion.calc_frame(motion_time)
             frame_vel_t = motion.calc_frame_vel(motion_time)
 
