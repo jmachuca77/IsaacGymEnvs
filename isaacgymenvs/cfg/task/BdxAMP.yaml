@@ -5,8 +5,8 @@ physics_engine: ${..physics_engine}
 
 env:
   # AMP-specific things
-  motionFile: "data/motions/bdx/placo_moves/bdx_walk_forward.txt"
-  # motionFile: "data/motions/bdx/bdx_forward.txt"
+  # motionFile: "data/motions/bdx/placo_moves/bdx_walk_forward.txt"
+  motionFile: "data/motions/bdx/bdx_forward.txt"
   # motionFile: "data/motions/bdx/dataset_bdx_all_orientations.yaml"
 
   # End AMP-specific things
@@ -43,7 +43,7 @@ env:
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0] # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
-    randomZRot: True
+    randomZRot: False
 
   randomCommandVelocityRanges:
     linear_x: [-0.02, 0.02] # min max [m/s]
