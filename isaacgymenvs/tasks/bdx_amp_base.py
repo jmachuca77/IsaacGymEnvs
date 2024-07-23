@@ -37,6 +37,7 @@ from isaacgym import gymapi, gymtorch
 from isaacgym.torch_utils import *
 
 from isaacgymenvs.tasks.base.vec_task import VecTask
+from isaacgymenvs.utils.torch_jit_utils import calc_heading_quat_inv
 
 
 class BdxAMPBase(VecTask):
@@ -729,6 +730,8 @@ def compute_bdx_observations(
 ):
     # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, float, float, float) -> Tensor
     base_quat = root_states[:, 3:7]
+    heading_rot = calc_heading_quat_inv(base_quat)
+    local_base_quat = quat_mul(heading_rot, base_quat)
     base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
     base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
     # projected_gravity = quat_rotate(base_quat, gravity_vec)
@@ -740,7 +743,7 @@ def compute_bdx_observations(
 
     obs = torch.cat(
         (
-            base_quat,
+            local_base_quat,
             # base_lin_vel,
             base_ang_vel,
             dof_pos_scaled,
