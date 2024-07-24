@@ -752,7 +752,6 @@ def compute_bdx_observations(
     dof_pos_scaled = (dof_pos - default_dof_pos) * dof_pos_scale
 
     dof_vel = dof_vel * dof_vel_scale
-
     obs = torch.cat(
         (
             local_base_quat,
