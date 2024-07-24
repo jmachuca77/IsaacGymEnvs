@@ -5,8 +5,8 @@ physics_engine: ${..physics_engine}
 
 env:
   # AMP-specific things
-  motionFile: "data/motions/bdx/placo_moves/bdx_stand.txt"
-  # motionFile: "data/motions/bdx/dataset_bdx.yaml"
+  # motionFile: "data/motions/bdx/placo_moves/bdx_stand.txt"
+  motionFile: "data/motions/bdx/dataset_bdx.yaml"
   # motionFile: "data/motions/bdx/dataset_bdx_all_orientations.yaml"
 
   # End AMP-specific things
@@ -43,17 +43,17 @@ env:
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0] # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
-    randomZRot: True
-
-  # randomCommandVelocityRanges:
-  #   linear_x: [-0.02, 0.02] # min max [m/s]
-  #   linear_y: [-0.02, 0.02] # min max [m/s]
-  #   yaw: [-0.1, 0.1] # min max [rad/s]
+    randomZRot: False
 
   randomCommandVelocityRanges:
-    linear_x: [0.0, 0.0] # min max [m/s]
-    linear_y: [0.0, 0.0] # min max [m/s]
-    yaw: [0.0, 0.0] # min max [rad/s]
+    linear_x: [-0.02, 0.02] # min max [m/s]
+    linear_y: [-0.02, 0.02] # min max [m/s]
+    yaw: [-0.1, 0.1] # min max [rad/s]
+
+  # randomCommandVelocityRanges:
+  #   linear_x: [0.0, 0.0] # min max [m/s]
+  #   linear_y: [0.0, 0.0] # min max [m/s]
+  #   yaw: [0.0, 0.0] # min max [rad/s]
 
   control:
     # PD Drive parameters:
