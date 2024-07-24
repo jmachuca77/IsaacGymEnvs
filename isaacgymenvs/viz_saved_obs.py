@@ -1,15 +1,21 @@
-from FramesViewer.viewer import Viewer
-import numpy as np
-from scipy.spatial.transform import Rotation as R
-import FramesViewer.utils as fv_utils
+import argparse
 import pickle
 import time
+
+import FramesViewer.utils as fv_utils
+import numpy as np
+from FramesViewer.viewer import Viewer
+from scipy.spatial.transform import Rotation as R
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--path", type=str, default="saved_obs.pkl")
+args = parser.parse_args()
 
 fv = Viewer()
 fv.start()
 
 base_pose = fv_utils.make_pose([0.1, 0.1, 0.1], [0, 0, 0])
-saved_obs = pickle.loads(open("saved_obs.pkl", "rb").read())
+saved_obs = pickle.loads(open(args.path, "rb").read())
 i = 0
 while True:
     obs = saved_obs[i]

@@ -14,20 +14,20 @@
 # limitations under the License.
 
 """Motion data class for processing motion clips."""
-import os
+import enum
 import json
 import logging
 import math
-import enum
+import os
+
 import numpy as np
-import yaml
 import torch
-
-from isaacgymenvs.utilities import pose3d
-from isaacgymenvs.utilities import motion_util
-from pybullet_utils import transformations
-
+import yaml
 from isaacgym.torch_utils import to_torch
+from pybullet_utils import transformations
+from scipy.spatial.transform import Rotation as R
+
+from isaacgymenvs.utilities import motion_util, pose3d
 
 
 class LoopMode(enum.Enum):
@@ -111,7 +111,7 @@ class MotionLib(object):
     def get_motion_length(self, motion_ids):
         return self._motion_lengths[motion_ids]
 
-    def get_motion_state(self, motion_ids, motion_times):
+    def get_motion_state(self, motion_ids, motion_times, random_z_rot=False):
         """Interpolate the motion-capture data to get motion state at arbitrary time"""
         n = len(motion_ids)
         root_pos = np.empty([n, 3])
@@ -121,14 +121,33 @@ class MotionLib(object):
         dof_pos = np.empty([n, self._num_dof])
         dof_vel = np.empty([n, self._num_dof])
 
+        if random_z_rot:
+            z_rots = {}
+            for id in range(len(motion_ids)):
+                z_rots[id] = np.random.uniform(-180, 180)
+
         # TODO: Implement vectorized version
         for i, (motion_id, motion_time) in enumerate(zip(motion_ids, motion_times)):
-            motion = self.get_motion(motion_id)
+            motion: MotionData = self.get_motion(motion_id)
             frame_t = motion.calc_frame(motion_time)
             frame_vel_t = motion.calc_frame_vel(motion_time)
 
-            root_pos[i, :] = frame_t[:3]
-            root_rot[i, :] = frame_t[3:7]
+            rot_quat = frame_t[3:7]
+            tmp_root_pos = frame_t[:3]
+
+            if random_z_rot:
+                rot_euler = R.from_quat(rot_quat).as_euler("xyz", degrees=True)
+                rot_euler[2] += z_rots[i]
+                rot_quat = R.from_euler("xyz", rot_euler, degrees=True).as_quat()
+
+                # rotate root position too around z at origin
+                tmp_root_pos = (
+                    R.from_euler("z", z_rots[i], degrees=True).as_matrix()
+                    @ tmp_root_pos
+                )
+
+            root_rot[i, :] = rot_quat
+            root_pos[i, :] = tmp_root_pos
             dof_pos[i, :] = frame_t[7:]
 
             root_vel[i, :] = frame_vel_t[:3]
