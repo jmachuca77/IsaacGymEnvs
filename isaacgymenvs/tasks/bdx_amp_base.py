@@ -298,6 +298,7 @@ class BdxAMPBase(VecTask):
         self.knee_indices = torch.zeros(
             len(knee_names), dtype=torch.long, device=self.device, requires_grad=False
         )
+
         self.base_index = 0
 
         dof_props = self.gym.get_asset_dof_properties(bdx_asset)
@@ -361,6 +362,11 @@ class BdxAMPBase(VecTask):
             self.knee_indices[i] = self.gym.find_actor_rigid_body_handle(
                 self.envs[0], self.bdx_handles[0], knee_names[i]
             )
+
+        head_name = "head_assembly"
+        self.head_index = self.gym.find_actor_rigid_body_handle(
+            self.envs[0], self.bdx_handles[0], head_name
+        )
 
         self.base_index = self.gym.find_actor_rigid_body_handle(
             self.envs[0], self.bdx_handles[0], "base"
@@ -454,6 +460,7 @@ class BdxAMPBase(VecTask):
             self.contact_forces,
             self.knee_indices,
             self.base_index,
+            self.head_index,
             self.max_episode_length,
             self._termination_height,
             self._enable_early_termination,
@@ -696,15 +703,19 @@ def compute_humanoid_reset(
     knee_indices,
     # other
     base_index,
+    head_index,
     max_episode_length,
     termination_height,
     enable_early_termination,
 ):
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, int, int, float, bool) -> Tuple[Tensor, Tensor]
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, int, int, int, float, bool) -> Tuple[Tensor, Tensor]
     terminated = torch.zeros_like(reset_buf)
     if enable_early_termination:
         # terminated = terminated | (torch.norm(contact_forces[:, base_index, :], dim=1) > 1.)
         # terminated = terminated | torch.any(torch.norm(contact_forces[:, knee_indices, :], dim=2) > 1., dim=1)
+
+        # head contact
+        terminated = terminated | (torch.norm(contact_forces[:, head_index, :], dim=1) > 1.0)
         body_height = root_states[:, 2]
         terminated = terminated | (body_height < termination_height)
 
@@ -732,6 +743,7 @@ def compute_bdx_observations(
     base_quat = root_states[:, 3:7]
     heading_rot = calc_heading_quat_inv(base_quat)
     local_base_quat = quat_mul(heading_rot, base_quat)
+
     base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
     base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
     # projected_gravity = quat_rotate(base_quat, gravity_vec)
