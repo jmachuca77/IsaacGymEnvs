@@ -715,7 +715,7 @@ def compute_humanoid_reset(
         # terminated = terminated | torch.any(torch.norm(contact_forces[:, knee_indices, :], dim=2) > 1., dim=1)
 
         # head contact
-        terminated = terminated | (torch.norm(contact_forces[:, head_index, :], dim=1) > 1.0)
+        # terminated = terminated | (torch.norm(contact_forces[:, head_index, :], dim=1) > 1.0)
         body_height = root_states[:, 2]
         terminated = terminated | (body_height < termination_height)
 
