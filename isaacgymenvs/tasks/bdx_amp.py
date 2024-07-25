@@ -468,13 +468,6 @@ def build_amp_observations(root_states, dof_pos, dof_vel, local_root_obs):
 
     dof_obs = dof_to_obs(dof_pos)
 
-    # the body orientation is probably important but we want the model to be invariant to the yaw orientation.
-    # so we will remove the yaw component of the orientation
-    rolls, pitchs, yaws = get_euler_xyz(root_rot_obs)
-    xy_euler_root_orientation = torch.stack((rolls, pitchs), dim=-1)
-    # print(root_rot_obs)
-    # print(xyz_euler_root_orientation)
-    # print("===")
     obs = torch.cat(
         (
             # dummy_root_h,

@@ -5,11 +5,8 @@ physics_engine: ${..physics_engine}
 
 env:
   # AMP-specific things
-  # motionFile: "data/motions/bdx/placo_moves/bdx_walk_forward.txt"
-  # motionFile: "data/motions/bdx/placo_moves/bdx_stand.txt"
-  motionFile: "data/motions/bdx/placo_moves/higher_bdx_walk_forward.txt"
-  # motionFile: "data/motions/bdx/dataset_bdx.yaml"
-  # motionFile: "data/motions/bdx/dataset_bdx_all_orientations.yaml"
+  # motionFile: "data/motions/bdx/placo_moves/higher_bdx_walk_forward.txt"
+  motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_forward.txt"
 
   # End AMP-specific things
   # numEnvs: ${resolve_default:4096,${...num_envs}}
@@ -41,7 +38,7 @@ env:
     restitution: 0. # [-]
 
   baseInitState:
-    pos: [0.0, 0.0, 0.17] # x,y,z [m]
+    pos: [0.0, 0.0, 0.175] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0] # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
@@ -82,21 +79,19 @@ env:
     # left_antenna: 0.0 # [rad]
     # right_antenna: 0.0 # [rad]
 
-    right_hip_yaw: -0.03624976502864328 # [rad]
-    right_hip_roll: -0.030487325306535976 # [rad]
-    right_hip_pitch: 0.2680420987834846 # [rad]
-    right_knee: -0.8597523079921773 # [rad]
-    right_ankle: 0.5923669552154145 # [rad]
-    left_hip_yaw: -0.03626380039794039 # [rad]
-    left_hip_roll: 0.05183131941573333 # [rad]
-    left_hip_pitch: 0.21064045281267854 # [rad]
-    left_knee: -0.7046338428321195 # [rad]
-    left_ankle: 0.4946507135822463 # [rad]
+    right_hip_yaw: -0.03676731090962078 # [rad]
+    right_hip_roll: -0.030315211140564333 # [rad]
+    right_hip_pitch: 0.4065815100399598 # [rad]
+    right_knee: -1.0864064934571644 # [rad]
+    right_ankle: 0.5932324840794684 # [rad]
+    left_hip_yaw: -0.03485756878823724 # [rad]
+    left_hip_roll: 0.052286054888550475 # [rad]
+    left_hip_pitch: 0.36623601032755765 # [rad]
+    left_knee: -0.964204465274923 # [rad]
+    left_ankle: 0.5112970996901808 # [rad]
     neck_pitch: -0.17453292519943295 # [rad]
     head_pitch: -0.17453292519943295 # [rad]
     head_yaw: 0 # [rad]
-    left_antenna: 0 # [rad]
-    right_antenna: -0 # [rad]
 
 
   urdfAsset:
