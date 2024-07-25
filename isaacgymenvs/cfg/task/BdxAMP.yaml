@@ -6,7 +6,8 @@ physics_engine: ${..physics_engine}
 env:
   # AMP-specific things
   # motionFile: "data/motions/bdx/placo_moves/bdx_walk_forward.txt"
-  motionFile: "data/motions/bdx/placo_moves/bdx_stand.txt"
+  # motionFile: "data/motions/bdx/placo_moves/bdx_stand.txt"
+  motionFile: "data/motions/bdx/placo_moves/higher_bdx_walk_forward.txt"
   # motionFile: "data/motions/bdx/dataset_bdx.yaml"
   # motionFile: "data/motions/bdx/dataset_bdx_all_orientations.yaml"
 
@@ -47,7 +48,7 @@ env:
     randomZRot: True
 
   randomCommandVelocityRanges:
-    linear_x: [0.0, 0.0] # min max [m/s]
+    linear_x: [0.02, 0.02] # min max [m/s]
     linear_y: [0.0, 0.0] # min max [m/s]
     yaw: [0.0, 0.0] # min max [rad/s]
 
@@ -65,23 +66,38 @@ env:
     controlFrequencyInv: 1 # 60 Hz
 
   defaultJointAngles: # = target angles when action = 0.0
-    right_hip_yaw: -0.014 # [rad]
-    right_hip_roll: 0.08 # [rad]
-    right_hip_pitch: 0.53 # [rad]
-    # right_knee: -1.62 # [rad]
-    right_knee: -1.32 # [rad]
-    right_ankle: 0.91 # [rad]
-    left_hip_yaw: 0.013 # [rad]
-    left_hip_roll: 0.077 # [rad]
-    left_hip_pitch: 0.59 # [rad]
-    # left_knee: -1.63 # [rad]
-    left_knee: -1.33 # [rad]
-    left_ankle: 0.86 # [rad]
-    neck_pitch: -0.17 # [rad]
-    head_pitch: -0.17 # [rad]
-    head_yaw: 0.0 # [rad]
-    left_antenna: 0.0 # [rad]
-    right_antenna: 0.0 # [rad]
+    # right_hip_yaw: -0.014 # [rad]
+    # right_hip_roll: 0.08 # [rad]
+    # right_hip_pitch: 0.53 # [rad]
+    # right_knee: -1.32 # [rad]
+    # right_ankle: 0.91 # [rad]
+    # left_hip_yaw: 0.013 # [rad]
+    # left_hip_roll: 0.077 # [rad]
+    # left_hip_pitch: 0.59 # [rad]
+    # left_knee: -1.33 # [rad]
+    # left_ankle: 0.86 # [rad]
+    # neck_pitch: -0.17 # [rad]
+    # head_pitch: -0.17 # [rad]
+    # head_yaw: 0.0 # [rad]
+    # left_antenna: 0.0 # [rad]
+    # right_antenna: 0.0 # [rad]
+
+    right_hip_yaw: -0.03624976502864328 # [rad]
+    right_hip_roll: -0.030487325306535976 # [rad]
+    right_hip_pitch: 0.2680420987834846 # [rad]
+    right_knee: -0.8597523079921773 # [rad]
+    right_ankle: 0.5923669552154145 # [rad]
+    left_hip_yaw: -0.03626380039794039 # [rad]
+    left_hip_roll: 0.05183131941573333 # [rad]
+    left_hip_pitch: 0.21064045281267854 # [rad]
+    left_knee: -0.7046338428321195 # [rad]
+    left_ankle: 0.4946507135822463 # [rad]
+    neck_pitch: -0.17453292519943295 # [rad]
+    head_pitch: -0.17453292519943295 # [rad]
+    head_yaw: 0 # [rad]
+    left_antenna: 0 # [rad]
+    right_antenna: -0 # [rad]
+
 
   urdfAsset:
     collapseFixedJoints: True
@@ -131,7 +147,7 @@ sim:
     contact_collection: 1 # 0: CC_NEVER (don't collect contact info), 1: CC_LAST_SUBSTEP (collect only contacts on last substep), 2: CC_ALL_SUBSTEPS (broken - do not use!)
 
 task:
-  push_robots: True
+  push_robots: False
   push_robots_params:
     interval: 100.0 # Define how many environment steps between generating new randomizations
     max_force: 0.3
