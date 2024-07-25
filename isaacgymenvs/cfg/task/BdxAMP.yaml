@@ -43,7 +43,7 @@ env:
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0] # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
-    randomZRot: False
+    randomZRot: True
 
   randomCommandVelocityRanges:
     linear_x: [0.02, 0.02] # min max [m/s]
@@ -157,7 +157,7 @@ task:
         color: True
         rigid_body_properties:
           mass:
-            range: [0.5, 1.5]
+            range: [0.8, 1.2]
             operation: "scaling"
             distribution: "uniform"
             setup_only: True # Property will only be randomized once before simulation is started. See Domain Randomization Documentation for more info.
@@ -179,13 +179,13 @@ task:
             schedule_steps: 3000
         dof_properties:
           damping:
-            range: [0.5, 1.5]
+            range: [0.9, 1.1]
             operation: "scaling"
             distribution: "uniform"
             schedule: "linear" # "linear" will scale the current random sample by `min(current num steps, schedule_steps) / schedule_steps`
             schedule_steps: 3000
           stiffness:
-            range: [0.5, 1.5]
+            range: [0.9, 1.1]
             operation: "scaling"
             distribution: "uniform"
             schedule: "linear" # "linear" will scale the current random sample by `min(current num steps, schedule_steps) / schedule_steps`
