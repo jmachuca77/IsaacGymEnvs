@@ -447,10 +447,6 @@ class BdxAMPBase(VecTask):
             self.lin_vel_scale,
             self.ang_vel_scale,
         )
-        # self.rew_buf[:] = compute_humanoid_reward(
-        #     # tensors
-        #     self.obs_buf,
-        # )
 
     def compute_reset(self):
         self.reset_buf, self._terminate_buf = compute_humanoid_reset(
