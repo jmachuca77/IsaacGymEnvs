@@ -92,6 +92,8 @@ env:
     neck_pitch: -0.17453292519943295 # [rad]
     head_pitch: -0.17453292519943295 # [rad]
     head_yaw: 0 # [rad]
+    left_antenna: 0.0 # [rad]
+    right_antenna: 0.0 # [rad]
 
 
   urdfAsset:
