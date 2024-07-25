@@ -45,7 +45,7 @@ env:
     randomZRot: False
 
   randomCommandVelocityRanges:
-    linear_x: [0.02, 0.02] # min max [m/s]
+    linear_x: [0.1, 0.1] # min max [m/s]
     linear_y: [0.0, 0.0] # min max [m/s]
     yaw: [0.0, 0.0] # min max [rad/s]
 
