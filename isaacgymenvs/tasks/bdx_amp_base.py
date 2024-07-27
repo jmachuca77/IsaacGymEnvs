@@ -328,6 +328,7 @@ class BdxAMPBase(VecTask):
                 "stiffness"
             ]  # self.Kp
             dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]  # self.Kd
+            dof_props["friction"][i] = self.cfg["env"]["control"]["friction"]
             if dof_props["lower"][i] > dof_props["upper"][i]:
                 self.dof_limits_lower.append(dof_props["upper"][i])
                 self.dof_limits_upper.append(dof_props["lower"][i])
