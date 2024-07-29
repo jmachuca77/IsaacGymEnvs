@@ -31,3 +31,6 @@ runs/
 outputs/
 *.hydra*
 /isaacgymenvs/wandb
+*.onnx
+*.pth
+*.pkl

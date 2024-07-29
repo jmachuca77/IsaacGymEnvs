@@ -328,7 +328,7 @@ class BdxAMPBase(VecTask):
                 "stiffness"
             ]  # self.Kp
             dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]  # self.Kd
-            dof_props["friction"][i] = self.cfg["env"]["control"]["friction"]
+            # dof_props["friction"][i] = self.cfg["env"]["control"]["friction"]
             if dof_props["lower"][i] > dof_props["upper"][i]:
                 self.dof_limits_lower.append(dof_props["upper"][i])
                 self.dof_limits_upper.append(dof_props["lower"][i])
@@ -388,9 +388,13 @@ class BdxAMPBase(VecTask):
             pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
 
         if self._pd_control:
-            target = self.default_dof_pos + self.actions
+            target = self._action_to_pd_targets(self.actions)
             target_tensor = gymtorch.unwrap_tensor(target)
             self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
+
+            # target = self.default_dof_pos + self.actions
+            # target_tensor = gymtorch.unwrap_tensor(target)
+            # self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
         else:
             forces = self.actions * self.motor_efforts.unsqueeze(0) * self.power_scale
             force_tensor = gymtorch.unwrap_tensor(forces)
@@ -694,9 +698,9 @@ def compute_humanoid_reset(
         # terminated = terminated | torch.any(torch.norm(contact_forces[:, knee_indices, :], dim=2) > 1., dim=1)
 
         # head contact
-        terminated = terminated | (
-            torch.norm(contact_forces[:, head_index, :], dim=1) > 1.0
-        )
+        # terminated = terminated | (
+        #     torch.norm(contact_forces[:, head_index, :], dim=1) > 1.0
+        # )
         body_height = root_states[:, 2]
         terminated = terminated | (body_height < termination_height)
 
@@ -722,6 +726,7 @@ def compute_bdx_observations(
 ):
     # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, float, float, float) -> Tensor
     base_quat = root_states[:, 3:7]
+
     heading_rot = calc_heading_quat_inv(base_quat)
     local_base_quat = quat_mul(heading_rot, base_quat)
 
@@ -735,7 +740,8 @@ def compute_bdx_observations(
     dof_vel = dof_vel * dof_vel_scale
     obs = torch.cat(
         (
-            local_base_quat,
+            base_quat,
+            # local_base_quat,
             # base_lin_vel,
             base_ang_vel,
             dof_pos_scaled,
