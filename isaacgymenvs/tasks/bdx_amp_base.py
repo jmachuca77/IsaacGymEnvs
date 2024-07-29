@@ -740,8 +740,8 @@ def compute_bdx_observations(
     dof_vel = dof_vel * dof_vel_scale
     obs = torch.cat(
         (
-            base_quat,
-            # local_base_quat,
+            # base_quat,
+            local_base_quat,
             # base_lin_vel,
             base_ang_vel,
             dof_pos_scaled,
