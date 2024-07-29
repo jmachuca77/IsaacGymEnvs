@@ -382,30 +382,12 @@ class BdxAMPBase(VecTask):
         #     device=self.device,
         #     requires_grad=False,
         # )
+
         if self.debug_save_obs_actions:
             self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
             pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
 
         if self._pd_control:
-            # target = self._action_to_pd_targets(self.actions) + self.default_dof_pos
-            # self.torques = (
-            #     self.Kp * (pd_tar - self.dof_pos)
-            #     - self.Kd * self.dof_vel  # * self.dof_vel_scale
-            # )
-            # self.torques = torch.clip(
-            #     self.torques, -0.6, 0.6
-            # )  # TODO find more restrictive limits based on the walk generator
-            # self.gym.set_dof_actuation_force_tensor(
-            #     self.sim, gymtorch.unwrap_tensor(self.torques)
-            # )
-
-            # pd_target = self._action_to_pd_targets(self.actions) + self.default_dof_pos
-            # pd_target = self.default_dof_pos
-            # pd_target = (
-            #     self.default_dof_pos
-            #     + np.sin(5 * self.common_step_counter * self.dt) * 0.5
-            # )
-            # pd_target = self.actions
             target = self.default_dof_pos + self.actions
             target_tensor = gymtorch.unwrap_tensor(target)
             self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
