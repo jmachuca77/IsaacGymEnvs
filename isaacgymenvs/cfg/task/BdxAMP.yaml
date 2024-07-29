@@ -17,6 +17,7 @@ env:
   cameraFollow: False # if the camera follows humanoid or not
   enableDebugVis: False
   debugSaveObsActions: False
+  
 
   pdControl: True
   powerScale: 1.0
