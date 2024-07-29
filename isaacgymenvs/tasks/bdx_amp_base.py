@@ -375,13 +375,13 @@ class BdxAMPBase(VecTask):
 
     def pre_physics_step(self, actions):
         self.actions = actions.to(self.device).clone()
-        self.actions = torch.zeros(
-            self.num_envs,
-            self.num_actions,
-            dtype=torch.float,
-            device=self.device,
-            requires_grad=False,
-        )
+        # self.actions = torch.zeros(
+        #     self.num_envs,
+        #     self.num_actions,
+        #     dtype=torch.float,
+        #     device=self.device,
+        #     requires_grad=False,
+        # )
 
         if self.debug_save_obs_actions:
             self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
