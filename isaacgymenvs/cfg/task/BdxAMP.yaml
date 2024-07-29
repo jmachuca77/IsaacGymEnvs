@@ -16,7 +16,7 @@ env:
   episodeLength_s: 8
   cameraFollow: False # if the camera follows humanoid or not
   enableDebugVis: False
-  debugSaveObsActions: True
+  debugSaveObsActions: False
 
   pdControl: True
   powerScale: 1.0
