@@ -388,10 +388,6 @@ class BdxAMPBase(VecTask):
             pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
 
         if self._pd_control:
-            # target = self._action_to_pd_targets(self.actions)
-            # target_tensor = gymtorch.unwrap_tensor(target)
-            # self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
-
             target = self.default_dof_pos + self.actions
             target_tensor = gymtorch.unwrap_tensor(target)
             self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
