@@ -46,8 +46,7 @@ env:
     vLinear: [0.0, 0.0, 0.0] # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
     randomZRot: False
-
-
+    
   randomCommandVelocityRanges:
     linear_x: [0.1, 0.1] # min max [m/s]
     linear_y: [0.0, 0.0] # min max [m/s]
