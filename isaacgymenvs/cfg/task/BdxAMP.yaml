@@ -7,8 +7,8 @@ env:
   # AMP-specific things
   # motionFile: "data/motions/bdx/placo_moves/higher_bdx_walk_forward.txt"
   # motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_forward.txt"
-  # motionFile: "data/motions/bdx/mujoco_moves/bdx_stand.txt"
-  motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_in_place.txt"
+  motionFile: "data/motions/bdx/mujoco_moves/bdx_stand.txt"
+  # motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_in_place.txt"
 
   # End AMP-specific things
   # numEnvs: ${resolve_default:4096,${...num_envs}}
@@ -48,15 +48,15 @@ env:
     vAngular: [0.0, 0.0, 0.0] # x,y,z [rad/s]
     randomZRot: False
     
-  randomCommandVelocityRanges:
-    linear_x: [-0.1, 0.1] # min max [m/s]
-    linear_y: [-0.1, 0.1] # min max [m/s]
-    yaw: [-0.1, 0.1] # min max [rad/s]
-
   # randomCommandVelocityRanges:
-  #   linear_x: [0.0, 0.0] # min max [m/s]
-  #   linear_y: [0.0, 0.0] # min max [m/s]
-  #   yaw: [0.0, 0.0] # min max [rad/s]
+  #   linear_x: [-0.1, 0.1] # min max [m/s]
+  #   linear_y: [-0.1, 0.1] # min max [m/s]
+  #   yaw: [-0.1, 0.1] # min max [rad/s]
+
+  randomCommandVelocityRanges:
+    linear_x: [0.0, 0.0] # min max [m/s]
+    linear_y: [0.0, 0.0] # min max [m/s]
+    yaw: [0.0, 0.0] # min max [rad/s]
 
   control:
     # PD Drive parameters:
@@ -150,7 +150,7 @@ sim:
     contact_collection: 1 # 0: CC_NEVER (don't collect contact info), 1: CC_LAST_SUBSTEP (collect only contacts on last substep), 2: CC_ALL_SUBSTEPS (broken - do not use!)
 
 task:
-  push_robots: False
+  push_robots: True
   push_robots_params:
     interval: 100.0 # Define how many environment steps between generating new randomizations
     max_force: 0.3
