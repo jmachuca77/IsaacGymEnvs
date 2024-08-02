@@ -65,7 +65,7 @@ env:
     damping: 0.2 # [N*m*s/rad]
     # friction: 0.01 # [???]
     # Replaced manual actionScale with automatic action scale calculated from URDF
-    # actionScale: 2.0
+    actionScale: 1.0
     controlFrequencyInv: 1 # 60 Hz
     decimation: 4
 

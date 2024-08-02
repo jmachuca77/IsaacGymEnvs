@@ -134,6 +134,7 @@ class BdxAMPBase(VecTask):
         self.max_episode_length = int(self.max_episode_length_s / self.dt + 0.5)
         self.Kp = self.cfg["env"]["control"]["stiffness"]
         self.Kd = self.cfg["env"]["control"]["damping"]
+        self.action_scale = self.cfg["env"]["control"]["actionScale"]
 
         # for key in self.rew_scales.keys():
         #    self.rew_scales[key] *= self.dt
@@ -389,7 +390,12 @@ class BdxAMPBase(VecTask):
 
             self.torques = torch.clip(
                 (
-                    self.Kp * (self.actions + self.default_dof_pos - self.dof_pos)
+                    self.Kp
+                    * (
+                        self.actions * self.action_scale
+                        + self.default_dof_pos
+                        - self.dof_pos
+                    )
                     - self.Kd * self.dof_vel
                 ),
                 -5.0,  # Hard higher limit on torques
