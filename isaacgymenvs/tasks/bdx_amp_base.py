@@ -82,7 +82,7 @@ class BdxAMPBase(VecTask):
         self.camera_follow = self.cfg["env"].get("cameraFollow", False)
 
         self.decimation = self.cfg["env"]["control"]["decimation"]
-        self.dt = self.decimation * self.cfg["sim"]["dt"]        
+        self.dt = self.decimation * self.cfg["sim"]["dt"]
 
         # command ranges
         self.command_x_range = self.cfg["env"]["randomCommandVelocityRanges"][
@@ -127,7 +127,7 @@ class BdxAMPBase(VecTask):
         # Reapply time step value because it gets overwritten in VecTask
         self.dt = self.decimation * self.cfg["sim"]["dt"]
         # self.gym.simulate will be called in pre_physics_step with the decimation mechanism
-        # Setting this to 0 avoid an additional call in VecTask.step 
+        # Setting this to 0 avoid an additional call in VecTask.step
         self.control_freq_inv = 0
 
         self.max_episode_length_s = self.cfg["env"]["episodeLength_s"]
@@ -135,7 +135,7 @@ class BdxAMPBase(VecTask):
         self.Kp = self.cfg["env"]["control"]["stiffness"]
         self.Kd = self.cfg["env"]["control"]["damping"]
 
-        #for key in self.rew_scales.keys():
+        # for key in self.rew_scales.keys():
         #    self.rew_scales[key] *= self.dt
 
         self._local_root_obs = self.cfg["env"]["localRootObs"]
@@ -163,7 +163,7 @@ class BdxAMPBase(VecTask):
         self.contact_forces = gymtorch.wrap_tensor(net_contact_forces).view(
             self.num_envs, -1, 3
         )  # shape: num_envs, num_bodies, xyz axis
-        #self.torques = gymtorch.wrap_tensor(torques).view(self.num_envs, self.num_dof)
+        # self.torques = gymtorch.wrap_tensor(torques).view(self.num_envs, self.num_dof)
 
         self.commands = torch.zeros(
             self.num_envs, 3, dtype=torch.float, device=self.device, requires_grad=False
@@ -384,29 +384,25 @@ class BdxAMPBase(VecTask):
             self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
             pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
 
-        # There is self.decimation steps of simulation between each call to the policy
+        # There is self.decimation steps of simulation between each call to the policy
         for _ in range(self.decimation):
 
             self.torques = torch.clip(
                 (
-                    self.Kp
-                    * (
-                        self.action_scale * self.actions
-                        + self.default_dof_pos
-                        - self.dof_pos
-                    )
+                    self.Kp * (self.actions + self.default_dof_pos - self.dof_pos)
                     - self.Kd * self.dof_vel
                 ),
-                -5.0,  # Hard higher limit on torques
-                5.0,  # Hard lower limit on torques
+                -5.0,  # Hard higher limit on torques
+                5.0,  # Hard lower limit on torques
             )
 
-
-            # Send desired joint torques to the simulation, run one step of simulator then refresh joint states
-            self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(torques))
-            self.torques = torques.view(self.torques.shape)
+            # Send desired joint torques to the simulation, run one step of simulator then refresh joint states
+            self.gym.set_dof_actuation_force_tensor(
+                self.sim, gymtorch.unwrap_tensor(self.torques)
+            )
+            self.torques = self.torques.view(self.torques.shape)
             self.gym.simulate(self.sim)
-            if self.device == 'cpu':
+            if self.device == "cpu":
                 self.gym.fetch_results(self.sim, True)
             self.gym.refresh_dof_state_tensor(self.sim)
             self.gym.refresh_net_contact_force_tensor(self.sim)
