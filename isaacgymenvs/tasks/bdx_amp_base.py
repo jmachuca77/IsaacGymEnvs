@@ -398,8 +398,8 @@ class BdxAMPBase(VecTask):
                     )
                     - self.Kd * self.dof_vel
                 ),
-                -5.0,  # Hard higher limit on torques
-                5.0,  # Hard lower limit on torques
+                -0.52,  # Hard higher limit on torques
+                0.52,  # Hard lower limit on torques
             )
 
             # Send desired joint torques to the simulation, run one step of simulator then refresh joint states
