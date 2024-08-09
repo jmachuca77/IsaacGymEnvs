@@ -380,6 +380,14 @@ class BdxAMPBase(VecTask):
         )
 
     def pre_physics_step(self, actions):
+        # actions = torch.zeros(
+        #     self.num_envs,
+        #     self.num_actions,
+        #     dtype=torch.float,
+        #     device=self.device,
+        #     requires_grad=False,
+        # )
+
         self.actions = actions.to(self.device).clone()
         if self.debug_save_obs_actions:
             self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
@@ -387,7 +395,6 @@ class BdxAMPBase(VecTask):
 
         # There is self.decimation steps of simulation between each call to the policy
         for _ in range(self.decimation):
-
             self.torques = torch.clip(
                 (
                     self.Kp
@@ -398,8 +405,8 @@ class BdxAMPBase(VecTask):
                     )
                     - self.Kd * self.dof_vel
                 ),
-                -0.52,  # Hard higher limit on torques
-                0.52,  # Hard lower limit on torques
+                -0.6,  # Hard lower limit on torques
+                0.6,  # Hard higher limit on torques
             )
 
             # Send desired joint torques to the simulation, run one step of simulator then refresh joint states

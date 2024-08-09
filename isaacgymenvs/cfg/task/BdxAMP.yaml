@@ -60,8 +60,10 @@ env:
 
   control:
     # PD Drive parameters:
-    stiffness: 4 # [N*m/rad]
-    damping: 0.2 # [N*m*s/rad]
+    # stiffness: 4 # [N*m/rad]
+    # damping: 0.2 # [N*m*s/rad]
+    stiffness: 10 # [N*m/rad]
+    damping: 0.05 # [N*m*s/rad]
     # friction: 0.01 # [???]
     # Replaced manual actionScale with automatic action scale calculated from URDF
     actionScale: 1.0
@@ -130,7 +132,7 @@ env:
 sim:
   dt: 0.005
   # dt: 0.01
-  substeps: 2
+  substeps: 1
   up_axis: "z"
   use_gpu_pipeline: ${eq:${...pipeline},"gpu"}
   gravity: [0.0, 0.0, -9.81]
@@ -154,7 +156,7 @@ task:
   push_robots_params:
     interval: 100.0 # Define how many environment steps between generating new randomizations
     max_force: 0.3
-  randomize: True
+  randomize: False
   randomization_params:
     frequency: 600 # Define how many environment steps between generating new randomizations
     observations:
