@@ -142,6 +142,7 @@ class BdxAMPBase(VecTask):
         self._local_root_obs = self.cfg["env"]["localRootObs"]
         self._termination_height = self.cfg["env"]["terminationHeight"]
         self._enable_early_termination = self.cfg["env"]["enableEarlyTermination"]
+        self._head_contact_termination = self.cfg["env"]["headContactTermination"]
 
         # get gym state tensors
         actor_root_state = self.gym.acquire_actor_root_state_tensor(self.sim)
@@ -476,6 +477,7 @@ class BdxAMPBase(VecTask):
             self.max_episode_length,
             self._termination_height,
             self._enable_early_termination,
+            self._head_contact_termination,
         )
 
     def compute_observations(self, env_ids=None):
@@ -719,17 +721,19 @@ def compute_humanoid_reset(
     max_episode_length,
     termination_height,
     enable_early_termination,
+    head_contact_termination=False,
 ):
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, int, int, int, float, bool) -> Tuple[Tensor, Tensor]
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, int, int, int, float, bool, bool) -> Tuple[Tensor, Tensor]
     terminated = torch.zeros_like(reset_buf)
     if enable_early_termination:
         # terminated = terminated | (torch.norm(contact_forces[:, base_index, :], dim=1) > 1.)
         # terminated = terminated | torch.any(torch.norm(contact_forces[:, knee_indices, :], dim=2) > 1., dim=1)
 
         # head contact
-        # terminated = terminated | (
-        #     torch.norm(contact_forces[:, head_index, :], dim=1) > 1.0
-        # )
+        if head_contact_termination:
+            terminated = terminated | (
+                torch.norm(contact_forces[:, head_index, :], dim=1) > 1.0
+            )
         body_height = root_states[:, 2]
         terminated = terminated | (body_height < termination_height)
 

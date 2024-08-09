@@ -31,6 +31,7 @@ env:
   terminationHeight: 0.11
   contact_bodies: ["right_foot", "left_foot"]
   enableEarlyTermination: True
+  headContactTermination: True
 
   clipObservations: 5.0
   clipActions: 1.0
