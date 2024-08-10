@@ -136,8 +136,8 @@ class BdxAMPBase(VecTask):
         self.Kd = self.cfg["env"]["control"]["damping"]
         self.action_scale = self.cfg["env"]["control"]["actionScale"]
 
-        # for key in self.rew_scales.keys():
-        #    self.rew_scales[key] *= self.dt
+        for key in self.rew_scales.keys():
+            self.rew_scales[key] *= self.dt
 
         self._local_root_obs = self.cfg["env"]["localRootObs"]
         self._termination_height = self.cfg["env"]["terminationHeight"]
