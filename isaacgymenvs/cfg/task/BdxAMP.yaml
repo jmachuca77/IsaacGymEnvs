@@ -6,10 +6,10 @@ physics_engine: ${..physics_engine}
 env:
   # AMP-specific things
   # motionFile: "data/motions/bdx/placo_moves/higher_bdx_walk_forward.txt"
-  # motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_forward.txt"
+  motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_forward.txt"
   # motionFile: "data/motions/bdx/mujoco_moves/bdx_stand.txt"
   # motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_in_place.txt"
-  motionFile: "data/motions/bdx/dataset_bdx.yaml"
+  # motionFile: "data/motions/bdx/dataset_bdx.yaml"
 
   # End AMP-specific things
   # numEnvs: ${resolve_default:4096,${...num_envs}}
@@ -49,9 +49,9 @@ env:
     randomZRot: False
 
   randomCommandVelocityRanges:
-    linear_x: [0.0, 0.1] # min max [m/s]
+    linear_x: [0.1, 0.1] # min max [m/s]
     linear_y: [0.0, 0.0] # min max [m/s]
-    yaw: [0.1, 0.1] # min max [rad/s]
+    yaw: [0.0, 0.0] # min max [rad/s]
 
   # randomCommandVelocityRanges:
   #   linear_x: [0.0, 0.0] # min max [m/s]
