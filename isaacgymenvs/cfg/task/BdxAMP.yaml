@@ -18,7 +18,7 @@ env:
   episodeLength_s: 8
   cameraFollow: False # if the camera follows humanoid or not
   enableDebugVis: False
-  debugSaveObsActions: True
+  debugSaveObsActions: False
 
   pdControl: True
   powerScale: 1.0
@@ -61,7 +61,7 @@ env:
   control:
     # PD Drive parameters:
     stiffness: 10 # [N*m/rad]
-    damping: 0.2 # [N*m*s/rad]
+    damping: 0.5 # [N*m*s/rad]
     # friction: 0.01 # [???]
     # Replaced manual actionScale with automatic action scale calculated from URDF
     # actionScale: 2.0
