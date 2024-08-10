@@ -153,7 +153,7 @@ task:
   push_robots_params:
     interval: 500.0 # Define how many environment steps between generating new randomizations
     max_force: 0.3
-  randomize: True
+  randomize: False
   randomization_params:
     frequency: 600 # Define how many environment steps between generating new randomizations
     observations:
