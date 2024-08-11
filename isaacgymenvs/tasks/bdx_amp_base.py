@@ -133,8 +133,8 @@ class BdxAMPBase(VecTask):
         self.action_scale = self.cfg["env"]["control"]["actionScale"]
         self.decimation = self.cfg["env"]["control"]["decimation"]
 
-        self.dt = self.sim_params.dt
-        # self.dt = self.decimation * self.sim_params.dt
+        # self.dt = self.sim_params.dt
+        self.dt = self.decimation * self.sim_params.dt
         self.max_episode_length_s = self.cfg["env"]["episodeLength_s"]
         self.max_episode_length = int(self.max_episode_length_s / self.dt + 0.5)
 
@@ -320,7 +320,7 @@ class BdxAMPBase(VecTask):
             if self._custom_pd_control:
                 dof_props["driveMode"][i] = gymapi.DOF_MODE_EFFORT
                 dof_props["stiffness"][i] = 0
-                dof_props["damping"][i] = 0
+                dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]
             else:
                 dof_props["driveMode"][i] = gymapi.DOF_MODE_POS
                 dof_props["stiffness"][i] = self.cfg["env"]["control"]["stiffness"]
