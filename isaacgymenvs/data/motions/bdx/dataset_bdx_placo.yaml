@@ -1,0 +1,7 @@
+motions:
+  - file: "placo_moves/bdx_walk_forward_slow.txt"
+    weight: 0.3
+  - file: "placo_moves/bdx_walk_forward_medium.txt"
+    weight: 0.3
+  - file: "placo_moves/bdx_walk_forward_fast.txt"
+    weight: 0.3

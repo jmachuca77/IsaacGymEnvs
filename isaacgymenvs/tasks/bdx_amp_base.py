@@ -69,6 +69,12 @@ class BdxAMPBase(VecTask):
         self.rew_scales["torque"] = self.cfg["env"]["learn"]["torqueRewardScale"]
 
         self._pd_control = self.cfg["env"]["pdControl"]
+        self._custom_pd_control = self.cfg["env"]["customPdControl"]
+
+        assert not (
+            self._pd_control and self._custom_pd_control
+        ), "Choose one control method"
+
         self.power_scale = self.cfg["env"]["powerScale"]
         self.randomize = self.cfg["task"]["randomize"]
         self.randomization_params = self.cfg["task"]["randomization_params"]
@@ -121,11 +127,16 @@ class BdxAMPBase(VecTask):
             force_render=force_render,
         )
 
-        self.dt = self.sim_params.dt
-        self.max_episode_length_s = self.cfg["env"]["episodeLength_s"]
-        self.max_episode_length = int(self.max_episode_length_s / self.dt + 0.5)
         self.Kp = self.cfg["env"]["control"]["stiffness"]
         self.Kd = self.cfg["env"]["control"]["damping"]
+        self.effort = self.cfg["env"]["control"]["effort"]
+        self.action_scale = self.cfg["env"]["control"]["actionScale"]
+        self.decimation = self.cfg["env"]["control"]["decimation"]
+
+        # self.dt = self.sim_params.dt
+        self.dt = self.decimation * self.sim_params.dt
+        self.max_episode_length_s = self.cfg["env"]["episodeLength_s"]
+        self.max_episode_length = int(self.max_episode_length_s / self.dt + 0.5)
 
         for key in self.rew_scales.keys():
             self.rew_scales[key] *= self.dt
@@ -303,32 +314,18 @@ class BdxAMPBase(VecTask):
 
         dof_props = self.gym.get_asset_dof_properties(bdx_asset)
 
-        # # add imu sensor
-        # body_idx = self.gym.find_asset_rigid_body_index(bdx_asset, "body_module")
-        # sensor_pose = gymapi.Transform()  # gymapi.Transform(gymapi.Vec3(0.0, 0.0, 0.0))
-        # self.gym.create_asset_force_sensor(bdx_asset, body_idx, sensor_pose)
-
         self.dof_limits_lower = []
         self.dof_limits_upper = []
-        # for i in range(self.num_dof):
-        #     dof_props["driveMode"][i] = gymapi.DOF_MODE_NONE
-        #     dof_props["stiffness"][i] = 0
-        #     dof_props["damping"][i] = 0
-        #     if dof_props["lower"][i] > dof_props["upper"][i]:
-        #         self.dof_limits_lower.append(dof_props["upper"][i])
-        #         self.dof_limits_upper.append(dof_props["lower"][i])
-        #     else:
-        #         self.dof_limits_lower.append(dof_props["lower"][i])
-        #         self.dof_limits_upper.append(dof_props["upper"][i])
-
-        # Previously
         for i in range(self.num_dof):
-            dof_props["driveMode"][i] = gymapi.DOF_MODE_POS
-            dof_props["stiffness"][i] = self.cfg["env"]["control"][
-                "stiffness"
-            ]  # self.Kp
-            dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]  # self.Kd
-            # dof_props["friction"][i] = self.cfg["env"]["control"]["friction"]
+            if self._custom_pd_control:
+                dof_props["driveMode"][i] = gymapi.DOF_MODE_EFFORT
+                dof_props["stiffness"][i] = 0
+                dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]
+            else:
+                dof_props["driveMode"][i] = gymapi.DOF_MODE_POS
+                dof_props["stiffness"][i] = self.cfg["env"]["control"]["stiffness"]
+                dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]
+
             if dof_props["lower"][i] > dof_props["upper"][i]:
                 self.dof_limits_lower.append(dof_props["upper"][i])
                 self.dof_limits_upper.append(dof_props["lower"][i])
@@ -391,6 +388,34 @@ class BdxAMPBase(VecTask):
             target = self.default_dof_pos + self.actions
             target_tensor = gymtorch.unwrap_tensor(target)
             self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
+        elif self._custom_pd_control:
+            # There is self.decimation steps of simulation between each call to the policy
+            for _ in range(self.decimation):
+                torques = (
+                    self.Kp
+                    * (
+                        self.actions * self.action_scale
+                        + self.default_dof_pos
+                        - self.dof_pos
+                    )
+                    - self.Kd * self.dof_vel
+                )
+                self.torques = torch.clip(torques, -self.effort, self.effort)
+                # Send desired joint torques to the simulation, run one step of simulator then refresh joint states
+                self.gym.set_dof_actuation_force_tensor(
+                    self.sim, gymtorch.unwrap_tensor(self.torques)
+                )
+                self.torques = self.torques.view(self.torques.shape)
+                self.gym.simulate(self.sim)
+                if self.device == "cpu":
+                    self.gym.fetch_results(self.sim, True)
+                self.gym.refresh_dof_state_tensor(self.sim)
+                self.gym.refresh_net_contact_force_tensor(self.sim)
+
+            # Render the simulation (if there is a graphical interface)
+            if self.force_render:
+                self.render()
+
         else:
             forces = self.actions * self.motor_efforts.unsqueeze(0) * self.power_scale
             force_tensor = gymtorch.unwrap_tensor(forces)
@@ -449,10 +474,6 @@ class BdxAMPBase(VecTask):
         self.gym.refresh_dof_state_tensor(self.sim)  # done in step
         self.gym.refresh_actor_root_state_tensor(self.sim)
         self.gym.refresh_net_contact_force_tensor(self.sim)
-
-        # self.gym.refresh_dof_force_tensor(self.sim)
-        # imu_state = torch.index_select(self.imu_tensor, 1, self.imu_indices)
-        # print(imu_state[0])
 
         # TODO: Replace default_dof_pos with _pd_action_offset
         if env_ids is None:
