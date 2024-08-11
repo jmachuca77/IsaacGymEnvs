@@ -18,7 +18,7 @@ env:
   episodeLength_s: 8
   cameraFollow: False # if the camera follows humanoid or not
   enableDebugVis: False
-  debugSaveObsActions: True
+  debugSaveObsActions: False
 
   pdControl: True # Isaac PD control
   customPdControl: False # Custom PD control
