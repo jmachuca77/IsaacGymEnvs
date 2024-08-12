@@ -1,19 +1,23 @@
 motions:
   # - file: "placo_moves/bdx_walk_forward_slow.txt"
   #   weight: 1.0
-  # - file: "placo_moves/bdx_walk_forward_medium.txt"
-  #   weight: 1.0
-  - file: "placo_moves/bdx_walk_forward_fast.txt"
+  - file: "placo_moves/bdx_walk_forward_medium.txt"
     weight: 1.0
+  # - file: "placo_moves/bdx_walk_forward_fast.txt"
+  #   weight: 1.0
   # - file: "placo_moves/bdx_walk_forward_left_slow.txt"
   #   weight: 1.0
-  # - file: "placo_moves/bdx_walk_forward_left_medium.txt"
-  #   weight: 1.0
-  - file: "placo_moves/bdx_walk_forward_left_fast.txt"
+  - file: "placo_moves/bdx_walk_forward_left_medium.txt"
     weight: 1.0
+  # - file: "placo_moves/bdx_walk_forward_left_fast.txt"
+  #   weight: 1.0
   # - file: "placo_moves/bdx_walk_forward_right_slow.txt"
   #   weight: 1.0
-  # - file: "placo_moves/bdx_walk_forward_right_medium.txt"
+  - file: "placo_moves/bdx_walk_forward_right_medium.txt"
+    weight: 1.0
+  # - file: "placo_moves/bdx_walk_forward_right_fast.txt"
   #   weight: 1.0
-  - file: "placo_moves/bdx_walk_forward_right_fast.txt"
+  - file: "placo_moves/bdx_turn_right_medium.txt"
+    weight: 1.0
+  - file: "placo_moves/bdx_turn_left_medium.txt"
     weight: 1.0
