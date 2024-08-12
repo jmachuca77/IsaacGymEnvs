@@ -747,11 +747,12 @@ def compute_bdx_observations(
     heading_rot = calc_heading_quat_inv(base_quat)
     local_base_quat = quat_mul(heading_rot, base_quat)
 
-    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
-    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
+    # base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
+    # base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
     # projected_gravity = quat_rotate(base_quat, gravity_vec)
     # base_lin_vel = root_states[:, 7:10] * lin_vel_scale
-    # base_ang_vel = root_states[:, 10:13] * ang_vel_scale
+
+    base_ang_vel = root_states[:, 10:13] * ang_vel_scale
     dof_pos_scaled = (dof_pos - default_dof_pos) * dof_pos_scale
 
     dof_vel = dof_vel * dof_vel_scale
