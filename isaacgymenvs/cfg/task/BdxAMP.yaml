@@ -5,7 +5,7 @@ physics_engine: ${..physics_engine}
 
 env:
   # AMP-specific things
-  motionFile: "data/motions/bdx/placo_moves/bdx_walk_forward_fast.txt"
+  motionFile: "data/motions/bdx/placo_moves/bdx_walk_forward_medium.txt"
   # motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_forward.txt"
   # motionFile: "data/motions/bdx/mujoco_moves/bdx_stand.txt"
   # motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_in_place.txt"
@@ -50,7 +50,7 @@ env:
     randomZRot: False
 
   randomCommandVelocityRanges:
-    linear_x: [0.2, 0.2] # min max [m/s]
+    linear_x: [0.15, 0.15] # min max [m/s]
     linear_y: [0.0, 0.0] # min max [m/s]
     yaw: [0.0, 0.0] # min max [rad/s]
     # linear_x: [0.2, 0.2] # min max [m/s]
@@ -62,7 +62,7 @@ env:
 
     # Isaac PD control
     stiffness: 10 # [N*m/rad]
-    damping: 0.1 # [N*m*s/rad]
+    damping: 0.2 # [N*m*s/rad]
     effort: 0.6 # [N*m]
     actionScale: 1.0
 
