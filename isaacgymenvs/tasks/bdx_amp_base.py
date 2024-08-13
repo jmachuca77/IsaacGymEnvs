@@ -236,6 +236,7 @@ class BdxAMPBase(VecTask):
         if self.debug_save_obs_actions:
             self.saved_obs = []
             self.saved_actions = []
+            self.saved_torques = []
 
     def create_sim(self):
         self.up_axis_idx = 2  # index of up axis: Y=1, Z=2
@@ -320,7 +321,7 @@ class BdxAMPBase(VecTask):
             if self._custom_pd_control:
                 dof_props["driveMode"][i] = gymapi.DOF_MODE_EFFORT
                 dof_props["stiffness"][i] = 0
-                dof_props["damping"][i] = self.cfg["env"]["control"]["damping"]
+                dof_props["damping"][i] = 0
             else:
                 dof_props["driveMode"][i] = gymapi.DOF_MODE_POS
                 dof_props["stiffness"][i] = self.cfg["env"]["control"]["stiffness"]
@@ -380,14 +381,11 @@ class BdxAMPBase(VecTask):
         #     requires_grad=False,
         # )
 
-        if self.debug_save_obs_actions:
-            self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
-            pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
-
         if self._pd_control:
             target = self.default_dof_pos + self.actions
             target_tensor = gymtorch.unwrap_tensor(target)
             self.gym.set_dof_position_target_tensor(self.sim, target_tensor)
+
         elif self._custom_pd_control:
             # There is self.decimation steps of simulation between each call to the policy
             for _ in range(self.decimation):
@@ -420,6 +418,17 @@ class BdxAMPBase(VecTask):
             forces = self.actions * self.motor_efforts.unsqueeze(0) * self.power_scale
             force_tensor = gymtorch.unwrap_tensor(forces)
             self.gym.set_dof_actuation_force_tensor(self.sim, force_tensor)
+
+        if self.debug_save_obs_actions:
+            self.saved_actions.append((self.actions[0].cpu().numpy(), time.time()))
+            pickle.dump(self.saved_actions, open("saved_actions.pkl", "wb"))
+
+            self.gym.refresh_dof_force_tensor(self.sim)
+            torques = self.gym.acquire_dof_force_tensor(self.sim)
+            torques = gymtorch.wrap_tensor(torques).view(self.num_envs, self.num_dof)
+
+            self.saved_torques.append(torques[0].cpu().numpy())
+            pickle.dump(self.saved_torques, open("torques.pkl", "wb"))
 
         return
 
@@ -542,6 +551,7 @@ class BdxAMPBase(VecTask):
         if self.debug_save_obs_actions:
             self.saved_obs = []
             self.saved_actions = []
+            self.saved_torques = []
 
         self.dof_pos[env_ids] = self.default_dof_pos[env_ids]
         self.dof_vel[env_ids] = self.default_dof_vel[env_ids]
