@@ -5,8 +5,8 @@ physics_engine: ${..physics_engine}
 
 env:
   # AMP-specific things
-  motionFile: "data/motions/bdx/placo_moves/bdx_walk_forward_medium.txt"
-  # motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_forward.txt"
+  # motionFile: "data/motions/bdx/placo_moves/bdx_walk_forward_medium.txt"
+  motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_forward.txt"
   # motionFile: "data/motions/bdx/mujoco_moves/bdx_stand.txt"
   # motionFile: "data/motions/bdx/mujoco_moves/bdx_walk_in_place.txt"
   # motionFile: "data/motions/bdx/dataset_bdx_placo.yaml"
